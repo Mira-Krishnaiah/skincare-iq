@@ -29,6 +29,17 @@
           <a href="#/" class="header-link" id="startOverLink">Start Over</a>
         </div>
       </div>
+      <div id="flowSteps" class="flow-steps hidden">
+        <div class="container flow-steps-inner">
+          <div class="flow-step" data-step="1"><span class="flow-dot"></span><span class="flow-label">Profile</span></div>
+          <div class="flow-connector"></div>
+          <div class="flow-step" data-step="2"><span class="flow-dot"></span><span class="flow-label">Products</span></div>
+          <div class="flow-connector"></div>
+          <div class="flow-step" data-step="3"><span class="flow-dot"></span><span class="flow-label">Analysis</span></div>
+          <div class="flow-connector"></div>
+          <div class="flow-step" data-step="4"><span class="flow-dot"></span><span class="flow-label">Routine</span></div>
+        </div>
+      </div>
     </header>
 
     <main id="app">
@@ -61,29 +72,33 @@
           <div class="container">
             <div class="feature-grid">
               <article class="info-card">
-                <div class="icon-box primary">🛡</div>
-                <h3>Advanced Skin Analysis</h3>
+                <div class="icon-box primary">⚗</div>
+                <h3>Chemistry-First Conflict Detection</h3>
                 <p>
-                  In-depth evaluation of your skin’s unique condition and personalized
-                  ingredient safety checks.
+                  A deterministic chemistry engine — independent of AI — maps ingredients to
+                  INCI canonical keys and cross-references 14+ journal-cited conflict pairs
+                  before Gemini is ever called.
                 </p>
               </article>
 
               <article class="info-card">
-                <div class="icon-box secondary">✨</div>
-                <h3>Personalized Recommendations</h3>
+                <div class="icon-box secondary">🔬</div>
+                <h3>Two-Layer Analysis</h3>
                 <p>
-                  Custom routines and product suggestions tailored just for you,
-                  based on your skin goals.
+                  Engine findings are injected into Gemini as grounding context.
+                  Unrecognized actives are verified against
+                  <a class="home-card-link" href="https://pubchem.ncbi.nlm.nih.gov/" target="_blank" rel="noopener">NIH PubChem</a>
+                  — so results are anchored to real chemistry, not hallucinations.
                 </p>
               </article>
 
               <article class="info-card">
                 <div class="icon-box accent">🧴</div>
-                <h3>Analyze Your Routine</h3>
+                <h3>Conflict-Aware Routine Builder</h3>
                 <p>
-                  Review your current products, routine structure, and how ingredients
-                  may be affecting your skin.
+                  Products are classified by active type and high-severity conflicts
+                  automatically split actives across alternate nights — no generic
+                  AM/PM template.
                 </p>
               </article>
             </div>
@@ -159,6 +174,7 @@
       <section class="page" id="page-profile">
         <section class="page-section">
           <div class="container narrow">
+            <a href="#/" class="page-back-link">← Home</a>
             <div class="section-head centered">
               <h1>Build Your Profile</h1>
               <p>
@@ -207,6 +223,7 @@
       <section class="page" id="page-products">
         <section class="page-section">
           <div class="container medium">
+            <a href="#/profile" class="page-back-link">← Profile</a>
             <div class="section-head centered">
               <h1>Your Skincare Shelf</h1>
               <p>Add 2–4 products from your current routine for analysis.</p>
@@ -264,6 +281,7 @@
         <section class="page-section">
           <div class="analysis-page-wrapper">
             <div class="container medium analysis-main-col">
+              <a href="#/products" class="page-back-link">← Products</a>
               <div class="section-head centered">
                 <h1>Your Ingredient Analysis</h1>
                 <p id="analysisSubtitle">Analyzing your routine&hellip;</p>
@@ -274,26 +292,24 @@
                 <article class="summary-card high-tone">
                   <div class="summary-icon">⚠</div>
                   <div>
-                    <h4>High Priority Conflict</h4>
-                    <p id="highPriorityText">
-                      Retinoid and exfoliating acid should not be used in the same routine.
-                    </p>
+                    <h4></h4>
+                    <p id="highPriorityText"></p>
                   </div>
                 </article>
 
                 <article class="summary-card medium-tone">
                   <div class="summary-icon">☼</div>
                   <div>
-                    <h4>Daily Protection</h4>
-                    <p>Morning SPF helps prevent damage and protect against dark spots.</p>
+                    <h4></h4>
+                    <p></p>
                   </div>
                 </article>
 
                 <article class="summary-card low-tone">
                   <div class="summary-icon">✓</div>
                   <div>
-                    <h4>Barrier Support Opportunity</h4>
-                    <p>Add recovery-focused hydration between active nights.</p>
+                    <h4></h4>
+                    <p></p>
                   </div>
                 </article>
               </div>
@@ -307,6 +323,7 @@
                     <span class="legend-pill low">Safe</span>
                   </div>
                 </div>
+                <p class="engine-method-note">⚗ Conflicts are first detected by a local chemistry engine using journal-cited rules, then expanded by Gemini. Cards marked <strong>⚗ Chemistry Engine</strong> were caught deterministically.</p>
 
                 <div id="analysisLoading" class="loading-block hidden">
                   <div class="spinner"></div>
@@ -377,24 +394,24 @@
               <article class="summary-card low-tone">
                 <div class="summary-icon">✓</div>
                 <div>
-                  <h4>Active Separation</h4>
-                  <p>Retinoid and exfoliant are scheduled on different days.</p>
+                  <h4></h4>
+                  <p></p>
                 </div>
               </article>
 
               <article class="summary-card medium-tone">
                 <div class="summary-icon">☼</div>
                 <div>
-                  <h4>Daily Protection</h4>
-                  <p>Morning SPF helps prevent damage and protect against dark spots.</p>
+                  <h4></h4>
+                  <p></p>
                 </div>
               </article>
 
               <article class="summary-card accent-tone">
                 <div class="summary-icon">✨</div>
                 <div>
-                  <h4>Recovery Balance</h4>
-                  <p>Hydration-focused days help maintain barrier health.</p>
+                  <h4></h4>
+                  <p></p>
                 </div>
               </article>
             </div>

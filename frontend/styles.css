@@ -139,6 +139,87 @@ input {
   color: var(--primary);
 }
 
+/* Flow step progress bar */
+.flow-steps {
+  border-top: 1px solid rgba(232, 228, 223, 0.6);
+  padding: 6px 0;
+}
+
+.flow-steps-inner {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.flow-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.38;
+  transition: opacity 0.2s ease;
+}
+
+.flow-step.active {
+  opacity: 1;
+}
+
+.flow-step.done {
+  opacity: 0.62;
+}
+
+.flow-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted-foreground);
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.flow-step.active .flow-dot {
+  background: var(--primary);
+  box-shadow: 0 0 0 2px rgba(139, 157, 131, 0.22);
+}
+
+.flow-step.done .flow-dot {
+  background: var(--primary);
+}
+
+.flow-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.flow-step.active .flow-label {
+  color: var(--primary-dark);
+}
+
+.flow-connector {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  margin: 0 8px;
+  min-width: 16px;
+  max-width: 48px;
+}
+
+/* Back navigation */
+.page-back-link {
+  display: inline-block;
+  margin-bottom: 12px;
+  font-size: 0.82rem;
+  color: var(--muted-foreground);
+  letter-spacing: 0.02em;
+  transition: color 0.15s ease;
+}
+
+.page-back-link:hover {
+  color: var(--primary-dark);
+}
+
 .hero {
   padding: 0;
 }
@@ -350,6 +431,18 @@ input {
 .cta-copy p,
 .search-meta {
   color: var(--muted-foreground);
+}
+
+.home-card-link {
+  color: var(--muted-foreground);
+  text-decoration: underline;
+  text-decoration-color: rgba(138, 138, 138, 0.4);
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
+}
+
+.home-card-link:hover {
+  color: var(--primary-dark);
 }
 
 .section-head {
@@ -926,6 +1019,18 @@ input {
   letter-spacing: 0.02em;
 }
 
+.pubchem-link {
+  color: #9aa3b2;
+  text-decoration: underline;
+  text-decoration-color: rgba(154, 163, 178, 0.5);
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
+}
+
+.pubchem-link:hover {
+  color: var(--primary-dark);
+}
+
 .name-only-note {
   font-size: 0.82rem;
   color: #7a6a52;
@@ -960,6 +1065,13 @@ input {
 .engine-source {
   color: #6b7db8;
   font-style: italic;
+}
+
+.engine-method-note {
+  font-size: 0.73rem;
+  color: #8a96b8;
+  margin: 4px 0 12px;
+  line-height: 1.5;
 }
 
 /* ── Analysis page two-column layout ── */

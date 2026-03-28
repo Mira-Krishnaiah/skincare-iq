@@ -110,6 +110,22 @@ function renderRoute() {
     startOverLink.style.visibility = "visible";
   }
 
+  // Flow step progress bar
+  const flowSteps = $("flowSteps");
+  const stepMap = { "#/profile": 1, "#/products": 2, "#/analysis": 3, "#/routine": 4 };
+  const currentStep = stepMap[route] || 0;
+  if (currentStep === 0) {
+    flowSteps.classList.add("hidden");
+  } else {
+    flowSteps.classList.remove("hidden");
+    document.querySelectorAll(".flow-step").forEach((el) => {
+      const s = parseInt(el.dataset.step, 10);
+      el.classList.remove("active", "done");
+      if (s === currentStep) el.classList.add("active");
+      else if (s < currentStep) el.classList.add("done");
+    });
+  }
+
   if (route === "#/profile") renderProfilePage();
   if (route === "#/products") renderProductsPage();
   if (route === "#/analysis") renderAnalysisPage();
@@ -238,7 +254,11 @@ function renderProductsPage() {
 
 function addProductToShelf(product) {
   if (appState.products.length >= 4) {
-    alert("You can add up to 4 products.");
+    const err = $("productsError");
+    if (err) {
+      err.textContent = "Maximum 4 products reached. Remove one to add another.";
+      err.classList.remove("hidden");
+    }
     return;
   }
   if (appState.products.some((p) => p.name === product.name)) return;
@@ -249,6 +269,8 @@ function addProductToShelf(product) {
   $("productSearch").value = "";
   $("searchResultsWrap").classList.add("hidden");
   $("searchEmpty").classList.add("hidden");
+  const err = $("productsError");
+  if (err) err.classList.add("hidden");
   renderProductsPage();
 }
 
@@ -503,6 +525,18 @@ async function renderAnalysisPage() {
     const result = typeof data.result === "string" ? JSON.parse(data.result) : data.result;
     appState.geminiResult = result;
     appState.preConflicts = data.pre_conflicts || [];
+    const pubchemHits = data.pubchem_hits || [];
+
+    // Update PubChem attribution note
+    const poweredBy = document.querySelector("#page-analysis .analysis-powered-by");
+    if (poweredBy) {
+      if (pubchemHits.length) {
+        const names = pubchemHits.map((h) => h.name).join(", ");
+        poweredBy.innerHTML = `Chemistry engine &amp; Gemini 2.5 Flash · <a class="pubchem-link" href="https://pubchem.ncbi.nlm.nih.gov/" target="_blank" rel="noopener">NIH PubChem</a> verified: ${escapeHtml(names)}`;
+      } else {
+        poweredBy.innerHTML = `Chemistry engine &amp; Gemini 2.5 Flash · ingredient database cross-referenced against <a class="pubchem-link" href="https://pubchem.ncbi.nlm.nih.gov/" target="_blank" rel="noopener">NIH PubChem</a>`;
+      }
+    }
 
     $("analysisLoading").classList.add("hidden");
 
@@ -1014,6 +1048,15 @@ function setupEvents() {
 
   $("toRoutineBtn").addEventListener("click", () => {
     navigate("#/routine");
+  });
+
+  $("startOverLink").addEventListener("click", (e) => {
+    e.preventDefault();
+    appState.profile = { skinType: "", concerns: [], sensitivities: [], goals: [] };
+    appState.products = [];
+    appState.geminiResult = null;
+    appState.preConflicts = [];
+    navigate("#/");
   });
 
   $("closeSidebarBtn").addEventListener("click", () => {
