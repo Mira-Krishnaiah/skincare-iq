@@ -280,7 +280,17 @@ Return ONLY valid JSON in the following format:
 
   "routine_recommendations": [],
   "product_pairings": [],
-  "alternative_suggestions": [],
+  "alternative_suggestions": [
+    {
+      "replaces_product": "",
+      "product_name": "",
+      "brand": "",
+      "category": "",
+      "why_safer": "",
+      "covers_both": false,
+      "covers_products": []
+    }
+  ],
 
   "personalization_prompt": ""
 }
@@ -747,18 +757,23 @@ Pairing logic:
 25. ALTERNATIVE SUGGESTION ENGINE
 --------------------------------
 
-If the product appears too harsh, poorly balanced, or mismatched to the user's profile, suggest gentler alternatives that preserve the intended goal.
+ONLY populate alternative_suggestions when at least one ingredient_conflict has severity "high".
+Do NOT include alternatives for "moderate" or "mild" conflicts.
 
-Examples:
-- replace harsh exfoliating acid combination with a milder single acid
-- replace alcohol-heavy acne formula with a gentler acne-support option
-- replace fragrance-heavy sensitive-skin product with fragrance-free alternative
-- replace overly aggressive retinoid + acid combination with separated routine steps
+For each high-severity conflict, suggest ONE real named product that resolves it:
+- Use real brand + product names available at mainstream retailers (e.g. "The Inkey List Retinol Serum", "La Roche-Posay Toleriane Double Repair Moisturizer")
+- Prefer widely available, mid-range products
+- Set replaces_product to the specific product name from the input that should be swapped out
+- If both conflicting products serve the same purpose (e.g. two exfoliants, retinol + AHA doing overlapping skin renewal), set covers_both: true and list both names in covers_products, then suggest a single gentler product that handles the goal alone
+- If one product is clearly the irritating/destabilizing agent, suggest a milder version of that type only
 
 Alternative logic:
 - preserve user goal
 - reduce unnecessary irritation
 - keep suggestions practical and routine-compatible
+- suggest only products the user can realistically buy
+
+why_safer must explain specifically how this product avoids the high-risk mechanism (e.g. "Lower concentration retinol does not trigger the same barrier breakdown as prescription-strength, making it safe to pair with a gentle acid on alternate nights").
 
 --------------------------------
 26. SKIN GOAL ALIGNMENT MODEL

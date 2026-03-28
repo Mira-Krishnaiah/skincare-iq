@@ -260,83 +260,103 @@
       <!-- ANALYSIS -->
       <section class="page" id="page-analysis">
         <section class="page-section">
-          <div class="container medium">
-            <div class="section-head centered">
-              <h1>Your Ingredient Analysis</h1>
-              <p>
-                We found several interactions in your routine and tailored the results
-                to your skin profile.
-              </p>
-            </div>
-
-            <div class="analysis-top-grid">
-              <article class="summary-card high-tone">
-                <div class="summary-icon">⚠</div>
-                <div>
-                  <h4>High Priority Conflict</h4>
-                  <p id="highPriorityText">
-                    Retinoid and exfoliating acid should not be used in the same routine.
-                  </p>
-                </div>
-              </article>
-
-              <article class="summary-card medium-tone">
-                <div class="summary-icon">☼</div>
-                <div>
-                  <h4>Daily Protection</h4>
-                  <p>Morning SPF helps prevent damage and protect against dark spots.</p>
-                </div>
-              </article>
-
-              <article class="summary-card low-tone">
-                <div class="summary-icon">✓</div>
-                <div>
-                  <h4>Barrier Support Opportunity</h4>
-                  <p>Add recovery-focused hydration between active nights.</p>
-                </div>
-              </article>
-            </div>
-
-            <article class="panel">
-              <div class="results-top">
-                <h3>Conflict Report</h3>
-                <div class="legend">
-                  <span class="legend-pill high">High</span>
-                  <span class="legend-pill medium">Medium</span>
-                  <span class="legend-pill low">Low</span>
-                </div>
+          <div class="analysis-page-wrapper">
+            <div class="container medium analysis-main-col">
+              <div class="section-head centered">
+                <h1>Your Ingredient Analysis</h1>
+                <p>
+                  We found several interactions in your routine and tailored the results
+                  to your skin profile.
+                </p>
               </div>
 
-              <div id="analysisLoading" class="loading-block hidden">
-                <div class="spinner"></div>
-                <p>Analyzing your product combinations...</p>
+              <div class="analysis-top-grid">
+                <article class="summary-card high-tone">
+                  <div class="summary-icon">⚠</div>
+                  <div>
+                    <h4>High Priority Conflict</h4>
+                    <p id="highPriorityText">
+                      Retinoid and exfoliating acid should not be used in the same routine.
+                    </p>
+                  </div>
+                </article>
+
+                <article class="summary-card medium-tone">
+                  <div class="summary-icon">☼</div>
+                  <div>
+                    <h4>Daily Protection</h4>
+                    <p>Morning SPF helps prevent damage and protect against dark spots.</p>
+                  </div>
+                </article>
+
+                <article class="summary-card low-tone">
+                  <div class="summary-icon">✓</div>
+                  <div>
+                    <h4>Barrier Support Opportunity</h4>
+                    <p>Add recovery-focused hydration between active nights.</p>
+                  </div>
+                </article>
               </div>
 
-              <div id="conflictsList" class="conflicts-list"></div>
-            </article>
-
-            <div class="analysis-bottom-grid">
               <article class="panel">
-                <div class="panel-head">
-                  <h3>Flagged Ingredients</h3>
-                  <p>Ingredients worth extra attention based on your profile and routine.</p>
+                <div class="results-top">
+                  <h3>Conflict Report</h3>
+                  <div class="legend">
+                    <span class="legend-pill high">High Risk</span>
+                    <span class="legend-pill medium">Medium Risk</span>
+                    <span class="legend-pill low">Safe</span>
+                  </div>
                 </div>
-                <div id="flaggedIngredients" class="tag-list"></div>
+
+                <div id="analysisLoading" class="loading-block hidden">
+                  <div class="spinner"></div>
+                  <p>Analyzing your product combinations...</p>
+                </div>
+
+                <div id="conflictsList" class="conflicts-list"></div>
               </article>
 
-              <article class="panel">
-                <div class="panel-head">
-                  <h3>What We Recommend</h3>
-                  <p>Practical changes to lower irritation and improve compatibility.</p>
-                </div>
-                <ul id="analysisRecommendations" class="bullet-list"></ul>
-              </article>
+              <div class="analysis-bottom-grid">
+                <article class="panel">
+                  <div class="panel-head">
+                    <h3>Flagged Ingredients</h3>
+                    <p>Ingredients worth extra attention based on your profile and routine.</p>
+                  </div>
+                  <div id="flaggedIngredients" class="tag-list"></div>
+                </article>
+
+                <article class="panel">
+                  <div class="panel-head">
+                    <h3>What We Recommend</h3>
+                    <p>Practical changes to lower irritation and improve compatibility.</p>
+                  </div>
+                  <ul id="analysisRecommendations" class="bullet-list"></ul>
+                </article>
+              </div>
+
+              <button class="btn btn-primary btn-lg btn-full" id="toRoutineBtn">
+                Build My Routine
+                <span class="btn-arrow">→</span>
+              </button>
+
+              <!-- Mobile-only toggle button for sidebar -->
+              <button id="mobileSidebarToggleBtn" class="btn btn-sm sidebar-mobile-toggle hidden">
+                ⚠ View Safer Alternatives
+              </button>
             </div>
 
-            <button class="btn btn-primary btn-lg btn-full" id="toRoutineBtn">
-              Build My Routine
-              <span class="btn-arrow">→</span>
-            </button>
+            <!-- ALTERNATIVES SIDEBAR — only shown when high-risk conflicts exist -->
+            <aside id="alternativesSidebar" class="alternatives-sidebar hidden">
+              <div class="sidebar-header">
+                <div class="sidebar-title-row">
+                  <span class="sidebar-alert-icon">⚠</span>
+                  <h3>Safer Alternatives</h3>
+                </div>
+                <p class="sidebar-subtitle">High-risk conflict detected. Consider swapping one of these products.</p>
+                <button id="closeSidebarBtn" class="sidebar-close" aria-label="Close sidebar">×</button>
+              </div>
+              <div id="alternativesSidebarBody" class="sidebar-body"></div>
+            </aside>
           </div>
         </section>
       </section>

@@ -570,6 +570,110 @@ function generateConflicts() {
   appState.recommendations = [...new Set(recs)];
 }
 
+async function verifyAlternativeWithOBF(suggestion) {
+  const query = [suggestion.brand, suggestion.product_name].filter(Boolean).join(" ").trim();
+  try {
+    const url = `https://world.openbeautyfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=5&fields=product_name,brands,ingredients_text`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const products = (data.products || []).filter((p) => p.product_name);
+    if (!products.length) return { ...suggestion, ingredients: [], verified: false };
+    const best = products[0];
+    const ingredients = (best.ingredients_text || "")
+      .split(/,|;/)
+      .map((s) => s.replace(/\*|\[|\]/g, "").trim())
+      .filter(Boolean);
+    return {
+      ...suggestion,
+      verifiedName: best.product_name.trim(),
+      ingredients,
+      verified: true
+    };
+  } catch (_) {
+    return { ...suggestion, ingredients: [], verified: false };
+  }
+}
+
+function renderAlternativesSidebar(alternatives) {
+  const sidebar = $("alternativesSidebar");
+  const body = $("alternativesSidebarBody");
+  const mobileToggle = $("mobileSidebarToggleBtn");
+  body.innerHTML = "";
+
+  if (!alternatives.length) {
+    sidebar.classList.add("hidden");
+    if (mobileToggle) mobileToggle.classList.add("hidden");
+    sidebar.classList.remove("mobile-open");
+    return;
+  }
+
+  alternatives.forEach((alt) => {
+    const card = document.createElement("article");
+    card.className = "alt-product-card";
+
+    const replacesList = alt.covers_both
+      ? (alt.covers_products || []).join(" + ")
+      : (alt.replaces_product || "");
+
+    const replacesLabel = alt.covers_both
+      ? `Replaces both: ${escapeHtml(replacesList)}`
+      : `Replaces: ${escapeHtml(replacesList)}`;
+
+    const verificationBadge = alt.verified
+      ? `<span class="alt-verified-badge">✓ Ingredients verified via Open Beauty Facts</span>`
+      : `<span class="alt-unverified-badge">~ AI-suggested (not yet in OBF database)</span>`;
+
+    const ingredientLine = alt.verified && alt.ingredients.length
+      ? `<p class="alt-ingredient-count">${alt.ingredients.length} ingredients confirmed</p>`
+      : "";
+
+    card.innerHTML = `
+      <span class="alt-replaces-label">${replacesLabel}</span>
+      <p class="alt-product-name">${escapeHtml(alt.verifiedName || alt.product_name || "")}</p>
+      <p class="alt-product-brand">${escapeHtml(alt.brand || "")}</p>
+      <p class="alt-why-safer">${escapeHtml(alt.why_safer || "")}</p>
+      ${verificationBadge}
+      ${ingredientLine}
+      <button class="btn btn-primary btn-sm alt-add-btn">Add to Shelf →</button>
+    `;
+
+    card.querySelector(".alt-add-btn").addEventListener("click", () => {
+      // Remove the product(s) being replaced
+      const toRemove = alt.covers_both
+        ? (alt.covers_products || [])
+        : [alt.replaces_product].filter(Boolean);
+
+      toRemove.forEach((targetName) => {
+        const targetLower = targetName.toLowerCase().slice(0, 20);
+        appState.products = appState.products.filter(
+          (p) => !p.name.toLowerCase().includes(targetLower)
+        );
+      });
+
+      // Add the alternative to the shelf
+      const product = {
+        id: Date.now().toString() + Math.random().toString(16).slice(2),
+        name: alt.verifiedName || alt.product_name || "",
+        brand: alt.brand || "",
+        category: alt.category || "Skincare",
+        ingredients: alt.ingredients || []
+      };
+      if (!appState.products.some((p) => p.name === product.name)) {
+        appState.products.push(product);
+      }
+
+      navigate("#/products");
+    });
+
+    body.appendChild(card);
+  });
+
+  // Desktop: remove hidden so the sidebar shows in the flex layout
+  sidebar.classList.remove("hidden");
+  // Mobile: don't auto-expand — show the toggle button instead
+  if (mobileToggle) mobileToggle.classList.remove("hidden");
+}
+
 async function renderAnalysisPage() {
   const conflictsList = $("conflictsList");
   const flaggedWrap = $("flaggedIngredients");
@@ -632,14 +736,21 @@ async function renderAnalysisPage() {
       conflictsList.appendChild(card);
     }
 
+    const riskIcon = { high: "⚠", medium: "☼", low: "✓" };
+    const riskLabel = { high: "High Risk", medium: "Medium Risk", low: "Safe" };
+
     conflicts.forEach((conflict) => {
-      const level = String(conflict.severity || "medium").toLowerCase();
+      const raw = String(conflict.severity || "medium").toLowerCase();
+      const level = raw === "moderate" ? "medium" : raw === "mild" ? "low" : raw;
       const card = document.createElement("article");
       card.className = `conflict-card ${level}`;
       card.innerHTML = `
         <div class="conflict-head">
-          <p class="conflict-title">${escapeHtml((conflict.ingredients || []).join(" + "))}</p>
-          <span class="legend-pill ${level}">${escapeHtml(level)}</span>
+          <div class="conflict-head-left">
+            <span class="conflict-risk-icon ${level}">${riskIcon[level] || "•"}</span>
+            <p class="conflict-title">${escapeHtml((conflict.ingredients || []).join(" + "))}</p>
+          </div>
+          <span class="legend-pill ${level}">${riskLabel[level] || level}</span>
         </div>
         <div class="conflict-body">
           <p><strong>Why it matters:</strong> ${escapeHtml(conflict.explanation || "")}</p>
@@ -656,8 +767,11 @@ async function renderAnalysisPage() {
       card.className = `conflict-card ${level}`;
       card.innerHTML = `
         <div class="conflict-head">
-          <p class="conflict-title">${escapeHtml(item.name || "")}</p>
-          <span class="legend-pill ${level}">${escapeHtml(item.concern_type || level)}</span>
+          <div class="conflict-head-left">
+            <span class="conflict-risk-icon ${level}">${riskIcon[level] || "•"}</span>
+            <p class="conflict-title">${escapeHtml(item.name || "")}</p>
+          </div>
+          <span class="legend-pill ${level}">${escapeHtml(item.concern_type || riskLabel[level] || level)}</span>
         </div>
         <div class="conflict-body">
           <p><strong>Category:</strong> ${escapeHtml(item.category || "")}</p>
@@ -683,6 +797,20 @@ async function renderAnalysisPage() {
       const li = document.createElement("li");
       li.textContent = result.overall_summary;
       recsWrap.appendChild(li);
+    }
+
+    // Alternatives sidebar — only for high-risk conflicts
+    const hasHighRisk = conflicts.some((c) => {
+      const raw = String(c.severity || "").toLowerCase();
+      return raw === "high";
+    });
+    const rawAlternatives = result.alternative_suggestions || [];
+    if (hasHighRisk && rawAlternatives.length) {
+      // Verify each suggestion against Open Beauty Facts
+      const verified = await Promise.all(rawAlternatives.map(verifyAlternativeWithOBF));
+      renderAlternativesSidebar(verified);
+    } else {
+      renderAlternativesSidebar([]);
     }
 
   } catch (err) {
@@ -797,6 +925,17 @@ function setupEvents() {
 
   $("toRoutineBtn").addEventListener("click", () => {
     navigate("#/routine");
+  });
+
+  $("closeSidebarBtn").addEventListener("click", () => {
+    $("alternativesSidebar").classList.add("hidden");
+  });
+
+  $("mobileSidebarToggleBtn").addEventListener("click", () => {
+    const sidebar = $("alternativesSidebar");
+    // On mobile, sidebar is display:none unless mobile-open; toggle it
+    sidebar.classList.remove("hidden");
+    sidebar.classList.toggle("mobile-open");
   });
 
   window.addEventListener("hashchange", renderRoute);
