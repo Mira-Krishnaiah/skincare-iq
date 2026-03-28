@@ -697,7 +697,12 @@ async function renderAnalysisPage() {
       body: JSON.stringify({
         products: appState.products.map((p) =>
           p.ingredients.length ? `${p.name} (${p.ingredients.join(", ")})` : p.name
-        )
+        ),
+        profile: {
+          skin_type: appState.profile.skinType || null,
+          concerns: appState.profile.concerns.length ? appState.profile.concerns : null,
+          sensitivities: appState.profile.sensitivities.length ? appState.profile.sensitivities : null
+        }
       })
     });
 

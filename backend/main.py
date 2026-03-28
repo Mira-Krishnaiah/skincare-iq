@@ -75,10 +75,26 @@ def analyze():
     pubchem_data  = pubchem_enrich(ingredient_lists, max_lookups=3)
     conflict_context = summarize_for_prompt(pre_conflicts, pubchem_data or None)
 
+    # Build profile text for [USER_PROFILE] placeholder
+    profile = data.get("profile") or {}
+    profile_lines = []
+    if profile.get("skin_type"):
+        profile_lines.append(f"skin_type: {profile['skin_type']}")
+    if profile.get("concerns"):
+        concerns = profile["concerns"]
+        if isinstance(concerns, list):
+            profile_lines.append(f"concerns: {', '.join(concerns)}")
+    if profile.get("sensitivities"):
+        sensitivities = profile["sensitivities"]
+        if isinstance(sensitivities, list):
+            profile_lines.append(f"sensitivities: {', '.join(sensitivities)}")
+    profile_text = "\n".join(profile_lines) if profile_lines else "Not provided."
+
     with open("system_prompt.txt", encoding="utf-8") as f:
         base_prompt = f.read()
 
-    prompt = base_prompt + "\n\n" + conflict_context + "\n\nProducts: " + json.dumps(products)
+    prompt = base_prompt.replace("[USER_PROFILE]", profile_text)
+    prompt = prompt + "\n\n" + conflict_context + "\n\nProducts: " + json.dumps(products)
     try:
         response = model.generate_content(prompt)
     except ResourceExhausted:
