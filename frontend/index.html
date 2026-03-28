@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkinIQ</title>
+  <meta
+    name="description"
+    content="AI-powered skincare ingredient conflict checker and routine builder."
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="#/" class="brand">
+          <div class="brand-icon">✦</div>
+          <span>SkinIQ</span>
+        </a>
+
+        <div class="header-right">
+          <a href="#/" class="header-link" id="startOverLink">Start Over</a>
+        </div>
+      </div>
+    </header>
+
+    <main id="app">
+      <!-- HOME -->
+      <section class="page active" id="page-home">
+        <section class="hero hero-home">
+          <div class="hero-home-bg">
+            <div class="container hero-grid">
+              <div class="hero-copy">
+                <h1>
+                  Discover Your
+                  <span>Best Skin</span>
+                </h1>
+                <p class="hero-text">
+                  Advanced AI-powered skin analysis and personalized recommendations,
+                  designed to bring out your most radiant complexion.
+                </p>
+                <a href="#/profile" class="btn btn-primary btn-lg">
+                  Start Your Analysis
+                  <span class="btn-arrow">→</span>
+                </a>
+              </div>
+
+              <div class="hero-visual" aria-hidden="true"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="features-section home-features-band">
+          <div class="container">
+            <div class="feature-grid">
+              <article class="info-card">
+                <div class="icon-box primary">🛡</div>
+                <h3>Advanced Skin Analysis</h3>
+                <p>
+                  In-depth evaluation of your skin’s unique condition and personalized
+                  ingredient safety checks.
+                </p>
+              </article>
+
+              <article class="info-card">
+                <div class="icon-box secondary">✨</div>
+                <h3>Personalized Recommendations</h3>
+                <p>
+                  Custom routines and product suggestions tailored just for you,
+                  based on your skin goals.
+                </p>
+              </article>
+
+              <article class="info-card">
+                <div class="icon-box accent">🧴</div>
+                <h3>Analyze Your Routine</h3>
+                <p>
+                  Review your current products, routine structure, and how ingredients
+                  may be affecting your skin.
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="how-section">
+          <div class="container">
+            <div class="section-head centered">
+              <h2>How It Works</h2>
+              <p>A Simple, Guided Process</p>
+            </div>
+
+            <div class="steps-grid">
+              <article class="step-card">
+                <div class="step-media step-media-1"></div>
+                <div class="step-head">
+                  <div class="step-badge primary">1</div>
+                  <h3>Describe Your Skin</h3>
+                </div>
+                <p>
+                  Share your skin type, concerns, and sensitivities so we can tailor
+                  your analysis to you.
+                </p>
+              </article>
+
+              <article class="step-card">
+                <div class="step-media step-media-2"></div>
+                <div class="step-head">
+                  <div class="step-badge secondary">2</div>
+                  <h3>Get Your Results</h3>
+                </div>
+                <p>
+                  Receive a detailed analysis of your skin’s condition and needs.
+                </p>
+              </article>
+
+              <article class="step-card">
+                <div class="step-media step-media-3"></div>
+                <div class="step-head">
+                  <div class="step-badge accent">3</div>
+                  <h3>Glow With Confidence</h3>
+                </div>
+                <p>
+                  Follow your personalized routine with more clarity about what works
+                  best for your skin.
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="cta-section">
+          <div class="container cta-inner">
+            <div class="cta-copy">
+              <h2>
+                Ready to Reveal
+                <span>Your Best Skin?</span>
+              </h2>
+              <p>
+                Join thousands of others who are already on their journey to healthier,
+                more radiant skin.
+              </p>
+              <a href="#/profile" class="btn btn-primary btn-lg">
+                Start Your Skin Analysis
+              </a>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- PROFILE -->
+      <section class="page" id="page-profile">
+        <section class="page-section">
+          <div class="container narrow">
+            <div class="section-head centered">
+              <h1>Build Your Profile</h1>
+              <p>
+                Help us understand your unique skin for truly personalized recommendations.
+              </p>
+            </div>
+
+            <div class="stack-lg">
+              <article class="panel">
+                <div class="panel-head">
+                  <h3>What’s Your Skin Type?</h3>
+                  <p>Select the option that best describes your skin.</p>
+                </div>
+                <div class="skin-type-grid" id="skinTypeGrid"></div>
+              </article>
+
+              <article class="panel">
+                <div class="panel-head">
+                  <h3>What Are Your Skin Concerns?</h3>
+                  <p>Select all that apply — we’ll prioritize these in your routine.</p>
+                </div>
+                <div class="checkbox-grid" id="concernsGrid"></div>
+              </article>
+
+              <article class="panel">
+                <div class="panel-head">
+                  <h3>Any Ingredient Sensitivities?</h3>
+                  <p>
+                    We’ll flag these ingredients in your products and suggest alternatives.
+                  </p>
+                </div>
+                <div class="checkbox-grid" id="sensitivitiesGrid"></div>
+              </article>
+
+              <button class="btn btn-primary btn-lg btn-full" id="toProductsBtn">
+                Continue to Products
+                <span class="btn-arrow">→</span>
+              </button>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- PRODUCTS -->
+      <section class="page" id="page-products">
+        <section class="page-section">
+          <div class="container medium">
+            <div class="section-head centered">
+              <h1>Your Skincare Shelf</h1>
+              <p>Add 2–4 products from your current routine for analysis.</p>
+            </div>
+
+            <article class="panel">
+              <div class="search-row">
+                <div class="search-wrap">
+                  <span class="search-icon">⌕</span>
+                  <input
+                    type="text"
+                    id="productSearch"
+                    class="input pill-input"
+                    placeholder="Search product name or brand..."
+                  />
+                </div>
+                <button class="btn btn-primary" id="searchProductsBtn">Search</button>
+              </div>
+
+              <div id="searchResultsWrap" class="search-results-wrap hidden">
+                <p class="search-meta" id="searchMeta"></p>
+                <div id="searchResults" class="search-results"></div>
+              </div>
+
+              <div id="searchEmpty" class="search-empty hidden">
+                No products found. Try a different search term.
+              </div>
+            </article>
+
+            <div id="currentProductsArea" class="stack-md">
+              <div class="products-head">
+                <h2>Your Products <span id="productCount">(0)</span></h2>
+              </div>
+
+              <div id="selectedProductsGrid" class="selected-products-grid"></div>
+
+              <div id="emptyShelfCard" class="empty-card">
+                <div class="empty-icon-circle">📦</div>
+                <h3>No products added yet</h3>
+                <p>Search and add 2–4 products from your routine to get started.</p>
+              </div>
+
+              <button class="btn btn-primary btn-lg btn-full" id="analyzeRoutineBtn">
+                Analyze My Routine
+                <span class="btn-arrow">→</span>
+              </button>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- ANALYSIS -->
+      <section class="page" id="page-analysis">
+        <section class="page-section">
+          <div class="container medium">
+            <div class="section-head centered">
+              <h1>Your Ingredient Analysis</h1>
+              <p>
+                We found several interactions in your routine and tailored the results
+                to your skin profile.
+              </p>
+            </div>
+
+            <div class="analysis-top-grid">
+              <article class="summary-card high-tone">
+                <div class="summary-icon">⚠</div>
+                <div>
+                  <h4>High Priority Conflict</h4>
+                  <p id="highPriorityText">
+                    Retinoid and exfoliating acid should not be used in the same routine.
+                  </p>
+                </div>
+              </article>
+
+              <article class="summary-card medium-tone">
+                <div class="summary-icon">☼</div>
+                <div>
+                  <h4>Daily Protection</h4>
+                  <p>Morning SPF helps prevent damage and protect against dark spots.</p>
+                </div>
+              </article>
+
+              <article class="summary-card low-tone">
+                <div class="summary-icon">✓</div>
+                <div>
+                  <h4>Barrier Support Opportunity</h4>
+                  <p>Add recovery-focused hydration between active nights.</p>
+                </div>
+              </article>
+            </div>
+
+            <article class="panel">
+              <div class="results-top">
+                <h3>Conflict Report</h3>
+                <div class="legend">
+                  <span class="legend-pill high">High</span>
+                  <span class="legend-pill medium">Medium</span>
+                  <span class="legend-pill low">Low</span>
+                </div>
+              </div>
+
+              <div id="analysisLoading" class="loading-block hidden">
+                <div class="spinner"></div>
+                <p>Analyzing your product combinations...</p>
+              </div>
+
+              <div id="conflictsList" class="conflicts-list"></div>
+            </article>
+
+            <div class="analysis-bottom-grid">
+              <article class="panel">
+                <div class="panel-head">
+                  <h3>Flagged Ingredients</h3>
+                  <p>Ingredients worth extra attention based on your profile and routine.</p>
+                </div>
+                <div id="flaggedIngredients" class="tag-list"></div>
+              </article>
+
+              <article class="panel">
+                <div class="panel-head">
+                  <h3>What We Recommend</h3>
+                  <p>Practical changes to lower irritation and improve compatibility.</p>
+                </div>
+                <ul id="analysisRecommendations" class="bullet-list"></ul>
+              </article>
+            </div>
+
+            <button class="btn btn-primary btn-lg btn-full" id="toRoutineBtn">
+              Build My Routine
+              <span class="btn-arrow">→</span>
+            </button>
+          </div>
+        </section>
+      </section>
+
+      <!-- ROUTINE -->
+      <section class="page" id="page-routine">
+        <section class="page-section">
+          <div class="container medium">
+            <div class="section-head centered">
+              <h1>Your Personalized Routine</h1>
+              <p>
+                A balanced weekly plan designed to help you reach your skin goals while
+                avoiding unnecessary irritation.
+              </p>
+            </div>
+
+            <div class="analysis-top-grid">
+              <article class="summary-card low-tone">
+                <div class="summary-icon">✓</div>
+                <div>
+                  <h4>Active Separation</h4>
+                  <p>Retinoid and exfoliant are scheduled on different days.</p>
+                </div>
+              </article>
+
+              <article class="summary-card medium-tone">
+                <div class="summary-icon">☼</div>
+                <div>
+                  <h4>Daily Protection</h4>
+                  <p>Morning SPF helps prevent damage and protect against dark spots.</p>
+                </div>
+              </article>
+
+              <article class="summary-card accent-tone">
+                <div class="summary-icon">✨</div>
+                <div>
+                  <h4>Recovery Balance</h4>
+                  <p>Hydration-focused days help maintain barrier health.</p>
+                </div>
+              </article>
+            </div>
+
+            <article class="panel">
+              <div class="tab-row">
+                <button class="tab-btn active" data-tab="daily">Daily AM/PM</button>
+                <button class="tab-btn" data-tab="weekly">Weekly Calendar</button>
+              </div>
+
+              <div id="routineDailyTab" class="tab-panel active">
+                <div class="routine-grid">
+                  <article class="routine-panel morning">
+                    <div class="routine-banner">
+                      <div class="routine-banner-icon">☀</div>
+                      <div>
+                        <h3>Morning</h3>
+                        <p>Every day</p>
+                      </div>
+                    </div>
+                    <div id="morningRoutine" class="routine-steps"></div>
+                  </article>
+
+                  <article class="routine-panel evening">
+                    <div class="routine-banner">
+                      <div class="routine-banner-icon">☾</div>
+                      <div>
+                        <h3>Evening</h3>
+                        <p>Varies by day</p>
+                      </div>
+                    </div>
+                    <div id="eveningRoutine" class="routine-steps"></div>
+                  </article>
+                </div>
+              </div>
+
+              <div id="routineWeeklyTab" class="tab-panel">
+                <div id="weeklyRoutineList" class="weekly-routine-list"></div>
+              </div>
+            </article>
+
+            <article class="panel tips-panel">
+              <div class="panel-head">
+                <h3>Pro Application Tips</h3>
+              </div>
+              <ul class="bullet-list">
+                <li>Wait 10 minutes after cleansing before applying retinoids for better tolerance.</li>
+                <li>Apply products from thinnest to thickest consistency.</li>
+                <li>Always use sunscreen as the final step in your morning routine.</li>
+                <li>If irritation occurs, pause actives and focus on hydration for 2–3 days.</li>
+              </ul>
+            </article>
+
+            <a href="#/" class="btn btn-secondary btn-lg btn-full">
+              Back to Home
+            </a>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+  <title>SkincareIQ</title>
+  <meta
+    name="description"
+    content="Analyze skincare and haircare products for ingredient conflicts, irritation risks, and routine compatibility."
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a href="#" class="brand">
+        <span class="brand-mark">
+          <svg viewBox="0 0 64 64" aria-hidden="true">
+            <path
+              d="M18 31c0-10 8-18 18-18 8 0 15 5 17 12 2 7-1 14-7 19-4 3-8 5-11 5-4 0-7-1-10-4-4-3-7-8-7-14Z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M22 34c3 1 6 1 10 1 5 0 10-1 14-4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+            />
+            <path
+              d="M30 24c2 1 4 1 6 0"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+            />
+          </svg>
+        </span>
+        <span class="brand-text">SkinAnalyze</span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="#hero" class="active">Home</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#services">Services</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </nav>
+
+      <a href="#analyzer" class="btn btn-nav">Start Your Analysis</a>
+
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+        ☰
+      </button>
+    </div>
+
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="#hero">Home</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#services">Services</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+      <a href="#analyzer" class="btn btn-nav mobile-btn">Start Your Analysis</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">AI-Powered Ingredient Intelligence</p>
+          <h1>
+            Discover Your
+            <span>Best Skin</span>
+          </h1>
+          <p class="hero-text">
+            A beauty, skincare, and haircare product checker that flags risky
+            ingredients, detects harmful combinations, and recommends routines
+            where products actually work together.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#analyzer" class="btn btn-primary">Start Your Analysis</a>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+          <div class="device-shell">
+            <div class="device-inner">
+              <div class="face-glow"></div>
+              <div class="face-silhouette"></div>
+            </div>
+          </div>
+
+          <div class="hero-products">
+            <div class="bottle bottle-dropper"></div>
+            <div class="bottle bottle-tall"></div>
+            <div class="bottle bottle-tube"></div>
+            <div class="flower flower-1"></div>
+            <div class="flower flower-2"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="feature-strip" id="services">
+      <div class="container feature-grid">
+        <article class="feature-card">
+          <div class="feature-icon blush">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"></circle>
+              <path d="M16.2 16.2L21 21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+            </svg>
+          </div>
+          <div>
+            <h3>Advanced Skin Analysis</h3>
+            <p>
+              Flags risky ingredients, barrier damage risks, and product overload
+              based on your inputs.
+            </p>
+          </div>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon sage">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="5" y="3.5" width="14" height="17" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.8"></rect>
+              <path d="M9 8h6M9 12h6M9 16h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+            </svg>
+          </div>
+          <div>
+            <h3>Personalized Recommendations</h3>
+            <p>
+              Builds AM/PM routines, suggests alternatives, and adapts to your
+              skin type, concerns, and sensitivities.
+            </p>
+          </div>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon lavender">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 16l4-4 4 2 7-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+              <path d="M17 7h2v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+          <div>
+            <h3>Track Routine Health</h3>
+            <p>
+              Analyze the products you already own, detect clashes, and organize
+              them into a safer routine.
+            </p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="analyzer-section" id="analyzer">
+      <div class="container">
+        <div class="section-heading">
+          <p class="eyebrow">SkincareIQ Analyzer</p>
+          <h2>Check Ingredient Conflicts Instantly</h2>
+          <p>
+            Enter 2–4 product names or raw ingredient lists. We’ll flag harmful
+            interactions, highlight risky ingredients, and suggest a routine that
+            works together.
+          </p>
+        </div>
+
+        <div class="analyzer-shell">
+          <div class="analyzer-left">
+            <div class="panel">
+              <h3>Build Your Product Set</h3>
+
+              <div class="profile-grid">
+                <label class="field">
+                  <span>Skin Type</span>
+                  <select id="skinType">
+                    <option value="">Select skin type</option>
+                    <option value="dry">Dry</option>
+                    <option value="oily">Oily</option>
+                    <option value="combination">Combination</option>
+                    <option value="sensitive">Sensitive</option>
+                    <option value="normal">Normal</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span>Main Concern</span>
+                  <select id="concern">
+                    <option value="">Select concern</option>
+                    <option value="acne">Acne</option>
+                    <option value="dark-spots">Dark Spots</option>
+                    <option value="texture">Texture</option>
+                    <option value="redness">Redness</option>
+                    <option value="barrier">Barrier Repair</option>
+                    <option value="dryness">Dryness</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="profile-grid">
+                <label class="field">
+                  <span>Sensitivity Notes</span>
+                  <input
+                    id="sensitivity"
+                    type="text"
+                    placeholder="e.g. fragrance-sensitive, rosacea-prone"
+                  />
+                </label>
+
+                <label class="field">
+                  <span>Product Mode</span>
+                  <select id="inputMode">
+                    <option value="names">Product Names</option>
+                    <option value="ingredients">Ingredient Lists</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="products-grid">
+                <label class="field">
+                  <span>Product 1</span>
+                  <textarea
+                    id="product1"
+                    rows="3"
+                    placeholder="e.g. The Ordinary Retinol 0.5% in Squalane"
+                  ></textarea>
+                </label>
+
+                <label class="field">
+                  <span>Product 2</span>
+                  <textarea
+                    id="product2"
+                    rows="3"
+                    placeholder="e.g. Paula's Choice Skin Perfecting 8% AHA"
+                  ></textarea>
+                </label>
+
+                <label class="field">
+                  <span>Product 3</span>
+                  <textarea
+                    id="product3"
+                    rows="3"
+                    placeholder="Optional"
+                  ></textarea>
+                </label>
+
+                <label class="field">
+                  <span>Product 4</span>
+                  <textarea
+                    id="product4"
+                    rows="3"
+                    placeholder="Optional"
+                  ></textarea>
+                </label>
+              </div>
+
+              <div class="analyzer-actions">
+                <button class="btn btn-primary" id="analyzeBtn">
+                  Analyze Routine
+                </button>
+                <button class="btn btn-secondary" id="demoBtn">
+                  Load Demo
+                </button>
+              </div>
+
+              <p class="helper-text">
+                MVP supports product names or pasted INCI lists, ingredient
+                flagging, combination checking, shelf analysis, alternative
+                recommendations, and a basic routine generator.
+              </p>
+            </div>
+          </div>
+
+          <div class="analyzer-right">
+            <div class="panel result-panel">
+              <div class="results-topbar">
+                <h3>Your Analysis</h3>
+                <div class="legend">
+                  <span class="legend-pill high">High</span>
+                  <span class="legend-pill medium">Medium</span>
+                  <span class="legend-pill low">Low</span>
+                </div>
+              </div>
+
+              <div id="loadingState" class="loading-state hidden">
+                <div class="spinner"></div>
+                <p>Analyzing product interactions...</p>
+              </div>
+
+              <div id="emptyState" class="empty-state">
+                <div class="empty-icon">✦</div>
+                <h4>No analysis yet</h4>
+                <p>
+                  Enter 2–4 products to detect ingredient conflicts, routine
+                  overload, and compatibility issues.
+                </p>
+              </div>
+
+              <div id="resultsWrap" class="results-wrap hidden">
+                <div id="overviewCard" class="overview-card"></div>
+
+                <div class="subsection">
+                  <div class="subsection-head">
+                    <h4>Conflict Report</h4>
+                  </div>
+                  <div id="conflictCards" class="conflict-cards"></div>
+                </div>
+
+                <div class="subsection">
+                  <div class="subsection-head">
+                    <h4>Flagged Ingredients</h4>
+                  </div>
+                  <div id="ingredientFlags" class="tag-list"></div>
+                </div>
+
+                <div class="subsection">
+                  <div class="subsection-head">
+                    <h4>Suggested Routine</h4>
+                  </div>
+                  <div id="routineCard" class="routine-card"></div>
+                </div>
+
+                <div class="subsection">
+                  <div class="subsection-head">
+                    <h4>Alternative Recommendations</h4>
+                  </div>
+                  <div id="alternativesCard" class="alternatives-card"></div>
+                </div>
+              </div>
+
+              <div id="errorState" class="error-state hidden"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="how-it-works" id="how-it-works">
+      <div class="container">
+        <div class="section-heading centered">
+          <h2>How It Works</h2>
+          <p>A Simple, Guided Process</p>
+        </div>
+
+        <div class="steps-grid">
+          <article class="step-card">
+            <div class="step-image step-image-device"></div>
+            <h3>1. Add Your Products</h3>
+            <p>
+              Search or paste ingredient lists from the products you already own.
+            </p>
+          </article>
+
+          <article class="step-card">
+            <div class="step-image step-image-report"></div>
+            <h3>2. Get Your Results</h3>
+            <p>
+              Detect harmful combinations, risky ingredients, and duplicated
+              actives across your routine.
+            </p>
+          </article>
+
+          <article class="step-card">
+            <div class="step-image step-image-products"></div>
+            <h3>3. Build a Better Routine</h3>
+            <p>
+              Get a safer AM/PM routine, shelf analysis, and alternative product
+              recommendations.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="about-cta" id="about">
+      <div class="wave-bg"></div>
+      <div class="container cta-inner">
+        <div class="cta-copy">
+          <h2>
+            Ready to Reveal
+            <span>Your Best Skin?</span>
+          </h2>
+          <p>
+            Avoid ingredient overload, reduce irritation risk, and build routines
+            where your products work together — not against each other.
+          </p>
+          <a href="#analyzer" class="btn btn-primary">Start Your Skin Analysis</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="contact">
+    <div class="container footer-inner">
+      <div>
+        <h3>SkincareIQ</h3>
+        <p>
+          Ingredient conflict checking, routine analysis, and AI-powered skincare
+          recommendations.
+        </p>
+      </div>
+      <div class="footer-links">
+        <a href="#hero">Home</a>
+        <a href="#analyzer">Analyzer</a>
+        <a href="#how-it-works">How It Works</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html> -->
