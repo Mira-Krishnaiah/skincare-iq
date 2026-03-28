@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import json
+import re
 import google.generativeai as genai
 from google.api_core.exceptions import ResourceExhausted
 import os
+from conflict_engine import find_conflicts, pubchem_enrich, summarize_for_prompt
 
 app = Flask(__name__)
 CORS(app)
@@ -58,8 +60,25 @@ def analyze():
             ),
             400,
         )
+    # Parse ingredient lists from "ProductName (ing1, ing2, ...)" strings
+    ingredient_lists = []
+    for product_str in products:
+        match = re.search(r"\(([^)]{10,})\)\s*$", product_str)
+        if match:
+            ings = [i.strip() for i in re.split(r",|;", match.group(1)) if i.strip()]
+            ingredient_lists.append(ings)
+        else:
+            ingredient_lists.append([])
+
+    # Run the local conflict engine before calling Gemini
+    pre_conflicts = find_conflicts(ingredient_lists)
+    pubchem_data  = pubchem_enrich(ingredient_lists, max_lookups=3)
+    conflict_context = summarize_for_prompt(pre_conflicts, pubchem_data or None)
+
     with open("system_prompt.txt", encoding="utf-8") as f:
-        prompt = f.read() + "\n\nProducts: " + json.dumps(products)
+        base_prompt = f.read()
+
+    prompt = base_prompt + "\n\n" + conflict_context + "\n\nProducts: " + json.dumps(products)
     try:
         response = model.generate_content(prompt)
     except ResourceExhausted:
