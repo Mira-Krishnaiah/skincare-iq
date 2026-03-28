@@ -1,5 +1,5 @@
 """
-SkinIQ — Chemical Conflict Detection Engine
+SkincareIQ — Chemical Conflict Detection Engine
 
 Independent of the Gemini API. Normalizes raw INCI ingredient strings to
 canonical keys via a synonym map, looks up known chemistry-based conflicts
@@ -434,7 +434,7 @@ def pubchem_lookup(ingredient_name: str) -> Optional[dict]:
         f"{encoded}/property/MolecularFormula,IUPACName,CanonicalSMILES/JSON"
     )
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "SkinIQ-ConflictEngine/1.0"})
+        req = urllib.request.Request(url, headers={"User-Agent": "SkincareIQ-ConflictEngine/1.0"})
         with urllib.request.urlopen(req, timeout=3) as response:
             raw = response.read().decode("utf-8")
         data = _json.loads(raw)
