@@ -393,8 +393,42 @@ function searchProducts() {
     );
   });
 
+  const rawQuery = $("productSearch").value.trim();
+
+  function addCustomProduct(name) {
+    if (appState.products.length >= 4) {
+      alert("You can add up to 4 products.");
+      return;
+    }
+    if (appState.products.some((p) => p.name.toLowerCase() === name.toLowerCase())) return;
+    appState.products.push({
+      id: Date.now().toString() + Math.random().toString(16).slice(2),
+      name,
+      brand: "",
+      category: "Product",
+      ingredients: []
+    });
+    $("productSearch").value = "";
+    $("searchResultsWrap").classList.add("hidden");
+    $("searchEmpty").classList.add("hidden");
+    renderProductsPage();
+  }
+
   if (!results.length) {
-    searchEmpty.classList.remove("hidden");
+    const row = document.createElement("div");
+    row.className = "search-result";
+    row.innerHTML = `
+      <div>
+        <strong>${escapeHtml(rawQuery)}</strong>
+        <div class="result-meta"><span class="search-meta">Not in database — will be analyzed by AI</span></div>
+      </div>
+      <button class="add-btn" aria-label="Add product">+</button>
+    `;
+    row.querySelector(".add-btn").addEventListener("click", () => addCustomProduct(rawQuery));
+    searchMeta.textContent = "No exact match — add as custom product";
+    searchResults.appendChild(row);
+    resultsWrap.classList.remove("hidden");
+    searchEmpty.classList.add("hidden");
     return;
   }
 
