@@ -203,6 +203,8 @@ const weeklyRoutine = {
   }
 };
 
+const BACKEND_URL = "https://skincare-iq-api-709197932075.us-central1.run.app/analyze";
+
 const appState = {
   profile: {
     skinType: "",
@@ -211,9 +213,7 @@ const appState = {
     goals: []
   },
   products: [],
-  conflicts: [],
-  flaggedIngredients: [],
-  recommendations: []
+  geminiResult: null
 };
 
 function $(id) {
@@ -515,7 +515,7 @@ function generateConflicts() {
   appState.recommendations = [...new Set(recs)];
 }
 
-function renderAnalysisPage() {
+async function renderAnalysisPage() {
   const conflictsList = $("conflictsList");
   const flaggedWrap = $("flaggedIngredients");
   const recsWrap = $("analysisRecommendations");
@@ -531,45 +531,105 @@ function renderAnalysisPage() {
   flaggedWrap.innerHTML = "";
   recsWrap.innerHTML = "";
 
-  setTimeout(() => {
-    generateConflicts();
+  try {
+    const response = await fetch(BACKEND_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ products: appState.products.map((p) => p.name) })
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.message || `Request failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const result = typeof data.result === "string" ? JSON.parse(data.result) : data.result;
+    appState.geminiResult = result;
+
     $("analysisLoading").classList.add("hidden");
 
-    const firstHigh = appState.conflicts.find((c) => c.type === "high");
-    highPriorityText.textContent = firstHigh
-      ? firstHigh.explanation
-      : "No major high-priority conflict detected in this product set.";
+    const conflicts = result.ingredient_conflicts || [];
+    const flagged = result.flagged_ingredients || [];
 
-    appState.conflicts.forEach((conflict) => {
+    highPriorityText.textContent =
+      conflicts[0]?.explanation ||
+      result.overall_summary ||
+      "Analysis complete.";
+
+    if (!conflicts.length && !flagged.length) {
       const card = document.createElement("article");
-      card.className = `conflict-card ${conflict.type}`;
+      card.className = "conflict-card low";
       card.innerHTML = `
         <div class="conflict-head">
-          <p class="conflict-title">${escapeHtml(conflict.title)}</p>
-          <span class="legend-pill ${conflict.type}">${escapeHtml(conflict.type)}</span>
+          <p class="conflict-title">No Major Conflicts Detected</p>
+          <span class="legend-pill low">low</span>
         </div>
         <div class="conflict-body">
-          <p><strong>Products:</strong> ${escapeHtml(conflict.products.join(" + "))}</p>
-          <p><strong>Why it matters:</strong> ${escapeHtml(conflict.explanation)}</p>
-          <p><strong>Recommendation:</strong> ${escapeHtml(conflict.recommendation)}</p>
+          <p><strong>Why it matters:</strong> Your product combination appears broadly compatible.</p>
+          <p><strong>Recommendation:</strong> Patch test new products and monitor for sensitivity.</p>
+        </div>
+      `;
+      conflictsList.appendChild(card);
+    }
+
+    conflicts.forEach((conflict) => {
+      const level = String(conflict.severity || "medium").toLowerCase();
+      const card = document.createElement("article");
+      card.className = `conflict-card ${level}`;
+      card.innerHTML = `
+        <div class="conflict-head">
+          <p class="conflict-title">${escapeHtml((conflict.ingredients || []).join(" + "))}</p>
+          <span class="legend-pill ${level}">${escapeHtml(level)}</span>
+        </div>
+        <div class="conflict-body">
+          <p><strong>Why it matters:</strong> ${escapeHtml(conflict.explanation || "")}</p>
+          <p><strong>Recommendation:</strong> ${escapeHtml(conflict.recommendation || "")}</p>
         </div>
       `;
       conflictsList.appendChild(card);
     });
 
-    appState.flaggedIngredients.forEach((flag) => {
+    flagged.forEach((item) => {
+      const conf = String(item.confidence || "medium").toLowerCase();
+      const level = conf === "high" ? "high" : conf === "low" ? "low" : "medium";
+      const card = document.createElement("article");
+      card.className = `conflict-card ${level}`;
+      card.innerHTML = `
+        <div class="conflict-head">
+          <p class="conflict-title">${escapeHtml(item.name || "")}</p>
+          <span class="legend-pill ${level}">${escapeHtml(item.concern_type || level)}</span>
+        </div>
+        <div class="conflict-body">
+          <p><strong>Category:</strong> ${escapeHtml(item.category || "")}</p>
+          <p><strong>Why it matters:</strong> ${escapeHtml(item.explanation || "")}</p>
+        </div>
+      `;
+      conflictsList.appendChild(card);
+
       const tag = document.createElement("span");
       tag.className = "tag";
-      tag.textContent = flag;
+      tag.textContent = item.name || "";
       flaggedWrap.appendChild(tag);
     });
 
-    appState.recommendations.forEach((rec) => {
+    const recs = result.routine_recommendations || [];
+    if (recs.length) {
+      recs.forEach((rec) => {
+        const li = document.createElement("li");
+        li.textContent = rec;
+        recsWrap.appendChild(li);
+      });
+    } else if (result.overall_summary) {
       const li = document.createElement("li");
-      li.textContent = rec;
+      li.textContent = result.overall_summary;
       recsWrap.appendChild(li);
-    });
-  }, 650);
+    }
+
+  } catch (err) {
+    $("analysisLoading").classList.add("hidden");
+    conflictsList.innerHTML = `<p style="color:var(--danger,#c0392b);padding:1rem">${escapeHtml(err.message || "Could not analyze products. Please try again.")}</p>`;
+  }
 }
 
 function renderRoutinePage() {
