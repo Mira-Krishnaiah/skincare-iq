@@ -1,0 +1,4 @@
+flask
+flask-cors
+google-generativeai
+gunicorn>=22.0,<24
