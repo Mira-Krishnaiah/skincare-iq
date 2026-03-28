@@ -402,35 +402,31 @@ async function verifyAlternativeWithOBF(suggestion) {
   }
 }
 
-function renderAlternativesSidebar(alternatives) {
-  const sidebar = $("alternativesSidebar");
-  const body = $("alternativesSidebarBody");
-  const mobileToggle = $("mobileSidebarToggleBtn");
+function renderAlternativesPanel(alternatives) {
+  const panel = $("alternativesPanel");
+  const body = $("alternativesPanelBody");
+  const toRoutineBtn = $("toRoutineBtn");
   body.innerHTML = "";
 
   if (!alternatives.length) {
-    sidebar.classList.add("hidden");
-    if (mobileToggle) mobileToggle.classList.add("hidden");
-    sidebar.classList.remove("mobile-open");
+    panel.classList.add("hidden");
+    if (toRoutineBtn) toRoutineBtn.classList.remove("hidden");
     return;
   }
 
   alternatives.forEach((alt) => {
-    const card = document.createElement("article");
-    card.className = "alt-product-card";
+    const card = document.createElement("div");
+    card.className = "alt-panel-card";
 
     const replacesList = alt.covers_both
       ? (alt.covers_products || []).join(" + ")
       : (alt.replaces_product || "");
-
     const replacesLabel = alt.covers_both
       ? `Replaces both: ${escapeHtml(replacesList)}`
       : `Replaces: ${escapeHtml(replacesList)}`;
-
     const verificationBadge = alt.verified
-      ? `<span class="alt-verified-badge">✓ Ingredients verified via Open Beauty Facts</span>`
-      : `<span class="alt-unverified-badge">~ AI-suggested (not yet in OBF database)</span>`;
-
+      ? `<span class="alt-verified-badge">✓ Verified via Open Beauty Facts</span>`
+      : `<span class="alt-unverified-badge">~ AI-suggested</span>`;
     const ingredientLine = alt.verified && alt.ingredients.length
       ? `<p class="alt-ingredient-count">${alt.ingredients.length} ingredients confirmed</p>`
       : "";
@@ -442,44 +438,51 @@ function renderAlternativesSidebar(alternatives) {
       <p class="alt-why-safer">${escapeHtml(alt.why_safer || "")}</p>
       ${verificationBadge}
       ${ingredientLine}
-      <button class="btn btn-primary btn-sm alt-add-btn">Add to Shelf →</button>
     `;
-
-    card.querySelector(".alt-add-btn").addEventListener("click", () => {
-      // Remove the product(s) being replaced
-      const toRemove = alt.covers_both
-        ? (alt.covers_products || [])
-        : [alt.replaces_product].filter(Boolean);
-
-      toRemove.forEach((targetName) => {
-        const targetLower = targetName.toLowerCase().slice(0, 20);
-        appState.products = appState.products.filter(
-          (p) => !p.name.toLowerCase().includes(targetLower)
-        );
-      });
-
-      // Add the alternative to the shelf
-      const product = {
-        id: Date.now().toString() + Math.random().toString(16).slice(2),
-        name: alt.verifiedName || alt.product_name || "",
-        brand: alt.brand || "",
-        category: alt.category || "Skincare",
-        ingredients: alt.ingredients || []
-      };
-      if (!appState.products.some((p) => p.name === product.name)) {
-        appState.products.push(product);
-      }
-
-      navigate("#/products");
-    });
-
     body.appendChild(card);
   });
 
-  // Desktop: remove hidden so the sidebar shows in the flex layout
-  sidebar.classList.remove("hidden");
-  // Mobile: don't auto-expand — show the toggle button instead
-  if (mobileToggle) mobileToggle.classList.remove("hidden");
+  panel.classList.remove("hidden");
+  if (toRoutineBtn) toRoutineBtn.classList.add("hidden");
+
+  // Wire up buttons (clone to remove any stale listeners)
+  const useBtn = $("useAlternativesBtn");
+  const keepBtn = $("keepOriginalBtn");
+
+  if (useBtn) {
+    const fresh = useBtn.cloneNode(true);
+    useBtn.parentNode.replaceChild(fresh, useBtn);
+    fresh.addEventListener("click", () => {
+      alternatives.forEach((alt) => {
+        const toRemove = alt.covers_both
+          ? (alt.covers_products || [])
+          : [alt.replaces_product].filter(Boolean);
+        toRemove.forEach((targetName) => {
+          const targetLower = targetName.toLowerCase().slice(0, 20);
+          appState.products = appState.products.filter(
+            (p) => !p.name.toLowerCase().includes(targetLower)
+          );
+        });
+        const product = {
+          id: Date.now().toString() + Math.random().toString(16).slice(2),
+          name: alt.verifiedName || alt.product_name || "",
+          brand: alt.brand || "",
+          category: alt.category || "Skincare",
+          ingredients: alt.ingredients || []
+        };
+        if (!appState.products.some((p) => p.name === product.name)) {
+          appState.products.push(product);
+        }
+      });
+      navigate("#/routine");
+    });
+  }
+
+  if (keepBtn) {
+    const fresh = keepBtn.cloneNode(true);
+    keepBtn.parentNode.replaceChild(fresh, keepBtn);
+    fresh.addEventListener("click", () => navigate("#/routine"));
+  }
 }
 
 async function renderAnalysisPage() {
@@ -499,6 +502,13 @@ async function renderAnalysisPage() {
   recsWrap.innerHTML = "";
   const subtitleEl = $("analysisSubtitle");
   if (subtitleEl) subtitleEl.textContent = "Analyzing your routine\u2026";
+
+  // Step-by-step loading text
+  const loadingStepEl = $("analysisLoadingStep");
+  const setStep = (text) => { if (loadingStepEl) loadingStepEl.textContent = text; };
+  setStep("⚗ Running chemistry engine...");
+  const t1 = setTimeout(() => setStep("🔬 Cross-referencing NIH PubChem..."), 2000);
+  const t2 = setTimeout(() => setStep("✦ Calling Gemini to analyze your routine..."), 5000);
 
   try {
     const response = await fetch(BACKEND_URL, {
@@ -520,6 +530,10 @@ async function renderAnalysisPage() {
       const err = await response.json().catch(() => ({}));
       throw new Error(err.message || `Request failed: ${response.status}`);
     }
+
+    clearTimeout(t1);
+    clearTimeout(t2);
+    setStep("✓ Verifying safer alternatives...");
 
     const data = await response.json();
     const result = typeof data.result === "string" ? JSON.parse(data.result) : data.result;
@@ -637,7 +651,6 @@ async function renderAnalysisPage() {
         </div>
         <div class="conflict-body">
           <p><strong>Why it matters:</strong> ${escapeHtml(conflict.explanation || "")}</p>
-          <p><strong>Recommendation:</strong> ${escapeHtml(conflict.recommendation || "")}</p>
           ${engineBadge}
         </div>
       `;
@@ -690,14 +703,15 @@ async function renderAnalysisPage() {
     });
     const rawAlternatives = result.alternative_suggestions || [];
     if (hasHighRisk && rawAlternatives.length) {
-      // Verify each suggestion against Open Beauty Facts
       const verified = await Promise.all(rawAlternatives.map(verifyAlternativeWithOBF));
-      renderAlternativesSidebar(verified);
+      renderAlternativesPanel(verified);
     } else {
-      renderAlternativesSidebar([]);
+      renderAlternativesPanel([]);
     }
 
   } catch (err) {
+    clearTimeout(t1);
+    clearTimeout(t2);
     $("analysisLoading").classList.add("hidden");
     conflictsList.innerHTML = `<p style="color:var(--danger,#c0392b);padding:1rem">${escapeHtml(err.message || "Could not analyze products. Please try again.")}</p>`;
   }
@@ -1057,17 +1071,6 @@ function setupEvents() {
     appState.geminiResult = null;
     appState.preConflicts = [];
     navigate("#/");
-  });
-
-  $("closeSidebarBtn").addEventListener("click", () => {
-    $("alternativesSidebar").classList.add("hidden");
-  });
-
-  $("mobileSidebarToggleBtn").addEventListener("click", () => {
-    const sidebar = $("alternativesSidebar");
-    // On mobile, sidebar is display:none unless mobile-open; toggle it
-    sidebar.classList.remove("hidden");
-    sidebar.classList.toggle("mobile-open");
   });
 
   window.addEventListener("hashchange", renderRoute);

@@ -327,7 +327,8 @@
 
                 <div id="analysisLoading" class="loading-block hidden">
                   <div class="spinner"></div>
-                  <p>Analyzing your product combinations...</p>
+                  <p id="analysisLoadingStep">Running chemistry engine...</p>
+                  <p class="loading-time-note">This may take 1–2 minutes</p>
                 </div>
 
                 <div id="conflictsList" class="conflicts-list"></div>
@@ -351,29 +352,31 @@
                 </article>
               </div>
 
+              <!-- Alternatives panel — shown when high-risk conflicts exist -->
+              <article id="alternativesPanel" class="panel alternatives-panel hidden">
+                <div class="alternatives-panel-header">
+                  <span class="alt-panel-alert">⚠</span>
+                  <div>
+                    <h3>High-Risk Conflicts Detected</h3>
+                    <p class="alt-panel-subtitle">Consider these safer alternatives before building your routine. Choose how to proceed:</p>
+                  </div>
+                </div>
+                <div id="alternativesPanelBody" class="alt-panel-body"></div>
+                <div class="alt-panel-actions">
+                  <button class="btn btn-primary btn-lg" id="useAlternativesBtn">
+                    Build Routine With These Alternatives <span class="btn-arrow">→</span>
+                  </button>
+                  <button class="btn btn-secondary btn-lg" id="keepOriginalBtn">
+                    Keep My Products &amp; Build Routine
+                  </button>
+                </div>
+              </article>
+
               <button class="btn btn-primary btn-lg btn-full" id="toRoutineBtn">
                 Build My Routine
                 <span class="btn-arrow">→</span>
               </button>
-
-              <!-- Mobile-only toggle button for sidebar -->
-              <button id="mobileSidebarToggleBtn" class="btn btn-sm sidebar-mobile-toggle hidden">
-                ⚠ View Safer Alternatives
-              </button>
             </div>
-
-            <!-- ALTERNATIVES SIDEBAR — only shown when high-risk conflicts exist -->
-            <aside id="alternativesSidebar" class="alternatives-sidebar hidden">
-              <div class="sidebar-header">
-                <div class="sidebar-title-row">
-                  <span class="sidebar-alert-icon">⚠</span>
-                  <h3>Safer Alternatives</h3>
-                </div>
-                <p class="sidebar-subtitle">High-risk conflict detected. Consider swapping one of these products.</p>
-                <button id="closeSidebarBtn" class="sidebar-close" aria-label="Close sidebar">×</button>
-              </div>
-              <div id="alternativesSidebarBody" class="sidebar-body"></div>
-            </aside>
           </div>
         </section>
       </section>

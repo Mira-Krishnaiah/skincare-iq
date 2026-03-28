@@ -70,6 +70,30 @@ def analyze():
         else:
             ingredient_lists.append([])
 
+    # Resolve ingredient lists for name-only products (not found in OBF) via Gemini
+    unknown_indices = [i for i, lst in enumerate(ingredient_lists) if not lst]
+    if unknown_indices:
+        unknown_names = [products[i] for i in unknown_indices]
+        resolve_prompt = (
+            "You are an INCI ingredient database. "
+            "Return ONLY a valid JSON object mapping each product name to an array of its likely INCI ingredient names. "
+            "Use your knowledge of each product's real formulation. "
+            "If uncertain, return your best estimate of typical ingredients for that product type. "
+            "No markdown, no code fences, no text outside the JSON.\n\n"
+            f"Products: {json.dumps(unknown_names)}"
+        )
+        try:
+            resolve_response = model.generate_content(resolve_prompt)
+            resolved = json.loads((resolve_response.text or "").strip())
+            for i in unknown_indices:
+                product_name = products[i]
+                inferred = resolved.get(product_name)
+                if isinstance(inferred, list) and inferred:
+                    ingredient_lists[i] = [str(s).strip() for s in inferred if str(s).strip()]
+                    products[i] = f"{product_name} ({', '.join(ingredient_lists[i])})"
+        except Exception:
+            pass  # Fall through — name-only analysis still works via main Gemini call
+
     # Run the local conflict engine before calling Gemini
     pre_conflicts = find_conflicts(ingredient_lists)
     pubchem_data  = pubchem_enrich(ingredient_lists, max_lookups=3)
