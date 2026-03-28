@@ -372,8 +372,44 @@ function renderProductsPage() {
   }
 }
 
-function searchProducts() {
-  const query = $("productSearch").value.trim().toLowerCase();
+function addProductToShelf(product) {
+  if (appState.products.length >= 4) {
+    alert("You can add up to 4 products.");
+    return;
+  }
+  if (appState.products.some((p) => p.name === product.name)) return;
+  appState.products.push({
+    id: Date.now().toString() + Math.random().toString(16).slice(2),
+    ...product
+  });
+  $("productSearch").value = "";
+  $("searchResultsWrap").classList.add("hidden");
+  $("searchEmpty").classList.add("hidden");
+  renderProductsPage();
+}
+
+function renderSearchRow(product) {
+  const row = document.createElement("div");
+  row.className = "search-result";
+  const ingredientCount = product.ingredients.length;
+  row.innerHTML = `
+    <div>
+      <strong>${escapeHtml(product.name)}</strong>
+      <div class="result-meta">
+        <span class="search-meta">${escapeHtml(product.brand)}</span>
+        <span class="pill">${escapeHtml(product.category)}</span>
+        ${ingredientCount ? `<span class="search-meta">${ingredientCount} ingredients</span>` : ""}
+      </div>
+    </div>
+    <button class="add-btn" aria-label="Add product">+</button>
+  `;
+  row.querySelector(".add-btn").addEventListener("click", () => addProductToShelf(product));
+  return row;
+}
+
+async function searchProducts() {
+  const rawQuery = $("productSearch").value.trim();
+  const query = rawQuery.toLowerCase();
   const resultsWrap = $("searchResultsWrap");
   const searchEmpty = $("searchEmpty");
   const searchResults = $("searchResults");
@@ -385,89 +421,74 @@ function searchProducts() {
 
   if (!query) return;
 
-  const results = productDatabase.filter((product) => {
-    return (
-      product.name.toLowerCase().includes(query) ||
-      product.brand.toLowerCase().includes(query) ||
-      product.category.toLowerCase().includes(query)
-    );
-  });
+  searchMeta.textContent = "Searching...";
+  resultsWrap.classList.remove("hidden");
 
-  const rawQuery = $("productSearch").value.trim();
+  let products = [];
 
-  function addCustomProduct(name) {
-    if (appState.products.length >= 4) {
-      alert("You can add up to 4 products.");
-      return;
-    }
-    if (appState.products.some((p) => p.name.toLowerCase() === name.toLowerCase())) return;
-    appState.products.push({
-      id: Date.now().toString() + Math.random().toString(16).slice(2),
-      name,
-      brand: "",
-      category: "Product",
-      ingredients: []
-    });
-    $("productSearch").value = "";
-    $("searchResultsWrap").classList.add("hidden");
-    $("searchEmpty").classList.add("hidden");
-    renderProductsPage();
+  try {
+    const url = `https://world.openbeautyfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(rawQuery)}&search_simple=1&action=process&json=1&page_size=15&fields=product_name,brands,categories_tags,ingredients_text`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    products = (data.products || [])
+      .filter((p) => p.product_name)
+      .map((p) => {
+        const ingredientsList = (p.ingredients_text || "")
+          .split(/,|;/)
+          .map((s) => s.replace(/\*|\[|\]/g, "").trim())
+          .filter(Boolean);
+        const categoryTag = (p.categories_tags || [])[0] || "";
+        const category = categoryTag.replace(/^en:/, "").replace(/-/g, " ");
+        return {
+          name: p.product_name.trim(),
+          brand: (p.brands || "").split(",")[0].trim(),
+          category: category || "Skincare",
+          ingredients: ingredientsList
+        };
+      })
+      .filter((p) => p.name);
+  } catch (_) {
+    // API unavailable — fall through to custom product option
   }
 
-  if (!results.length) {
-    const row = document.createElement("div");
-    row.className = "search-result";
-    row.innerHTML = `
-      <div>
-        <strong>${escapeHtml(rawQuery)}</strong>
-        <div class="result-meta"><span class="search-meta">Not in database — will be analyzed by AI</span></div>
-      </div>
-      <button class="add-btn" aria-label="Add product">+</button>
-    `;
-    row.querySelector(".add-btn").addEventListener("click", () => addCustomProduct(rawQuery));
-    searchMeta.textContent = "No exact match — add as custom product";
+  searchResults.innerHTML = "";
+
+  if (!products.length) {
+    const custom = {
+      name: rawQuery,
+      brand: "",
+      category: "Skincare",
+      ingredients: []
+    };
+    const row = renderSearchRow(custom);
+    row.querySelector(".result-meta .search-meta").textContent = "Not found — will be analyzed by AI";
     searchResults.appendChild(row);
-    resultsWrap.classList.remove("hidden");
-    searchEmpty.classList.add("hidden");
+    searchMeta.textContent = "No results — add as custom product";
     return;
   }
 
-  searchMeta.textContent = `${results.length} product${results.length !== 1 ? "s" : ""} found`;
-  resultsWrap.classList.remove("hidden");
+  searchMeta.textContent = `${products.length} product${products.length !== 1 ? "s" : ""} found`;
 
-  results.forEach((product) => {
-    const row = document.createElement("div");
-    row.className = "search-result";
-    row.innerHTML = `
-      <div>
-        <strong>${escapeHtml(product.name)}</strong>
-        <div class="result-meta">
-          <span class="search-meta">${escapeHtml(product.brand)}</span>
-          <span class="pill ${product.category.toLowerCase()}">${escapeHtml(product.category)}</span>
-        </div>
-      </div>
-      <button class="add-btn" aria-label="Add product">+</button>
-    `;
-    row.querySelector(".add-btn").addEventListener("click", () => {
-      if (appState.products.length >= 4) {
-        alert("You can add up to 4 products.");
-        return;
-      }
-      const exists = appState.products.some((p) => p.name === product.name);
-      if (exists) return;
-
-      appState.products.push({
-        id: Date.now().toString() + Math.random().toString(16).slice(2),
-        ...product
-      });
-
-      $("productSearch").value = "";
-      $("searchResultsWrap").classList.add("hidden");
-      $("searchEmpty").classList.add("hidden");
-      renderProductsPage();
-    });
-    searchResults.appendChild(row);
+  products.forEach((product) => {
+    searchResults.appendChild(renderSearchRow(product));
   });
+
+  // Always offer adding the exact typed name too
+  const customRow = document.createElement("div");
+  customRow.className = "search-result";
+  customRow.innerHTML = `
+    <div>
+      <strong>${escapeHtml(rawQuery)}</strong>
+      <div class="result-meta"><span class="search-meta">Add by name (AI will identify it)</span></div>
+    </div>
+    <button class="add-btn" aria-label="Add product">+</button>
+  `;
+  customRow.querySelector(".add-btn").addEventListener("click", () => addProductToShelf({
+    name: rawQuery, brand: "", category: "Skincare", ingredients: []
+  }));
+  searchResults.appendChild(customRow);
+
 }
 
 function generateConflicts() {
@@ -569,7 +590,11 @@ async function renderAnalysisPage() {
     const response = await fetch(BACKEND_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ products: appState.products.map((p) => p.name) })
+      body: JSON.stringify({
+        products: appState.products.map((p) =>
+          p.ingredients.length ? `${p.name} (${p.ingredients.join(", ")})` : p.name
+        )
+      })
     });
 
     if (!response.ok) {
