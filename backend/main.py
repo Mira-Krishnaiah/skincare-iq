@@ -2,13 +2,14 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import json
 import google.generativeai as genai
+from google.api_core.exceptions import ResourceExhausted
 import os
 
 app = Flask(__name__)
 CORS(app)
 
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-model = genai.GenerativeModel("gemini-2.0-flash")
+model = genai.GenerativeModel("gemini-1.5-flash-8b")
 
 MAX_PRODUCTS = 4
 
@@ -59,7 +60,28 @@ def analyze():
         )
     with open("system_prompt.txt", encoding="utf-8") as f:
         prompt = f.read() + "\n\nProducts: " + json.dumps(products)
-    response = model.generate_content(prompt)
+    try:
+        response = model.generate_content(prompt)
+    except ResourceExhausted:
+        return (
+            jsonify(
+                {
+                    "error": "quota_exceeded",
+                    "message": "Gemini API quota exceeded. Please try again later.",
+                }
+            ),
+            429,
+        )
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "error": "model_error",
+                    "message": str(e),
+                }
+            ),
+            502,
+        )
     text = (response.text or "").strip()
     try:
         json.loads(text)
@@ -75,6 +97,7 @@ def analyze():
             422,
         )
     return jsonify({"result": text})
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "8080"))

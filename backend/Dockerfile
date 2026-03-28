@@ -8,7 +8,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY main.py system_prompt.txt .
+COPY main.py system_prompt.txt ./
 
 ENV PORT=8080
 EXPOSE 8080
