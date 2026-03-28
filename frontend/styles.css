@@ -912,6 +912,36 @@ input {
   margin: 0 0 8px;
 }
 
+.routine-empty-note {
+  color: #9aa3b2;
+  font-size: 0.875rem;
+  font-style: italic;
+  padding: 8px 0;
+}
+
+.analysis-powered-by {
+  font-size: 0.75rem;
+  color: #9aa3b2;
+  margin-top: 6px;
+  letter-spacing: 0.02em;
+}
+
+.name-only-note {
+  font-size: 0.82rem;
+  color: #7a6a52;
+  background: #fdf8f0;
+  border: 1px solid #e8dcc8;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+}
+
+.inline-error {
+  color: #c0392b;
+  font-size: 0.875rem;
+  margin-bottom: 8px;
+}
+
 .engine-badge {
   display: inline-flex;
   align-items: center;

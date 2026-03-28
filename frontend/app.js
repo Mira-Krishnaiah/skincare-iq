@@ -28,180 +28,6 @@ const sensitivities = [
   "Vitamin C"
 ];
 
-const productDatabase = [
-  {
-    name: "CeraVe Hydrating Cleanser",
-    brand: "CeraVe",
-    category: "Cleanser",
-    ingredients: [
-      "Water",
-      "Glycerin",
-      "Cetearyl Alcohol",
-      "Phenoxyethanol",
-      "Ceramides",
-      "Hyaluronic Acid"
-    ]
-  },
-  {
-    name: "The Ordinary Niacinamide 10% + Zinc 1%",
-    brand: "The Ordinary",
-    category: "Serum",
-    ingredients: ["Water", "Niacinamide", "Zinc PCA", "Pentylene Glycol"]
-  },
-  {
-    name: "Paula's Choice 2% BHA Liquid Exfoliant",
-    brand: "Paula's Choice",
-    category: "Exfoliant",
-    ingredients: [
-      "Water",
-      "Salicylic Acid",
-      "Methylpropanediol",
-      "Butylene Glycol"
-    ]
-  },
-  {
-    name: "Tretinoin 0.025%",
-    brand: "Generic",
-    category: "Retinoid",
-    ingredients: ["Tretinoin", "Sorbitol", "Water", "Stearyl Alcohol"]
-  },
-  {
-    name: "La Roche-Posay Toleriane Double Repair Moisturizer",
-    brand: "La Roche-Posay",
-    category: "Moisturizer",
-    ingredients: [
-      "Water",
-      "Glycerin",
-      "Niacinamide",
-      "Ceramide-3",
-      "Prebiotic Thermal Water"
-    ]
-  },
-  {
-    name: "EltaMD UV Clear SPF 46",
-    brand: "EltaMD",
-    category: "Sunscreen",
-    ingredients: [
-      "Zinc Oxide",
-      "Niacinamide",
-      "Hyaluronic Acid",
-      "Lactic Acid"
-    ]
-  }
-];
-
-const weeklyRoutine = {
-  Monday: {
-    am: [
-      { product: "CeraVe Hydrating Cleanser", category: "Cleanser" },
-      { product: "EltaMD UV Clear SPF 46", category: "Sunscreen" }
-    ],
-    pm: [
-      { product: "CeraVe Hydrating Cleanser", category: "Cleanser" },
-      {
-        product: "Tretinoin 0.025%",
-        category: "Retinoid",
-        note: "Retinoid night"
-      },
-      {
-        product: "La Roche-Posay Toleriane Double Repair Moisturizer",
-        category: "Moisturizer"
-      }
-    ]
-  },
-  Tuesday: {
-    am: [
-      { product: "CeraVe Hydrating Cleanser", category: "Cleanser" },
-      { product: "EltaMD UV Clear SPF 46", category: "Sunscreen" }
-    ],
-    pm: [
-      { product: "CeraVe Hydrating Cleanser", category: "Cleanser" },
-      {
-        product: "La Roche-Posay Toleriane Double Repair Moisturizer",
-        category: "Moisturizer",
-        note: "Recovery night"
-      }
-    ]
-  },
-  Wednesday: {
-    am: [
-      { product: "CeraVe Hydrating Cleanser", category: "Cleanser" },
-      { product: "EltaMD UV Clear SPF 46", category: "Sunscreen" }
-    ],
-    pm: [
-      { product: "CeraVe Hydrating Cleanser", category: "Cleanser" },
-      {
-        product: "Paula's Choice 2% BHA Liquid Exfoliant",
-        category: "Exfoliant",
-        note: "Acid night"
-      },
-      {
-        product: "La Roche-Posay Toleriane Double Repair Moisturizer",
-        category: "Moisturizer"
-      }
-    ]
-  },
-  Thursday: {
-    am: [
-      { product: "CeraVe Hydrating Cleanser", category: "Cleanser" },
-      { product: "EltaMD UV Clear SPF 46", category: "Sunscreen" }
-    ],
-    pm: [
-      { product: "CeraVe Hydrating Cleanser", category: "Cleanser" },
-      {
-        product: "La Roche-Posay Toleriane Double Repair Moisturizer",
-        category: "Moisturizer",
-        note: "Recovery night"
-      }
-    ]
-  },
-  Friday: {
-    am: [
-      { product: "CeraVe Hydrating Cleanser", category: "Cleanser" },
-      { product: "EltaMD UV Clear SPF 46", category: "Sunscreen" }
-    ],
-    pm: [
-      { product: "CeraVe Hydrating Cleanser", category: "Cleanser" },
-      {
-        product: "Tretinoin 0.025%",
-        category: "Retinoid",
-        note: "Retinoid night"
-      },
-      {
-        product: "La Roche-Posay Toleriane Double Repair Moisturizer",
-        category: "Moisturizer"
-      }
-    ]
-  },
-  Saturday: {
-    am: [
-      { product: "CeraVe Hydrating Cleanser", category: "Cleanser" },
-      { product: "EltaMD UV Clear SPF 46", category: "Sunscreen" }
-    ],
-    pm: [
-      { product: "CeraVe Hydrating Cleanser", category: "Cleanser" },
-      {
-        product: "La Roche-Posay Toleriane Double Repair Moisturizer",
-        category: "Moisturizer",
-        note: "Barrier-support night"
-      }
-    ]
-  },
-  Sunday: {
-    am: [
-      { product: "CeraVe Hydrating Cleanser", category: "Cleanser" },
-      { product: "EltaMD UV Clear SPF 46", category: "Sunscreen" }
-    ],
-    pm: [
-      { product: "CeraVe Hydrating Cleanser", category: "Cleanser" },
-      {
-        product: "La Roche-Posay Toleriane Double Repair Moisturizer",
-        category: "Moisturizer",
-        note: "Reset night"
-      }
-    ]
-  }
-};
 
 const BACKEND_URL = "https://skincare-iq-api-709197932075.us-central1.run.app/analyze";
 
@@ -500,9 +326,9 @@ async function searchProducts() {
       ingredients: []
     };
     const row = renderSearchRow(custom);
-    row.querySelector(".result-meta .search-meta").textContent = "Not found — will be analyzed by AI";
+    row.querySelector(".result-meta .search-meta").textContent = "Not in database — Gemini will analyze by name (no ingredient-level checks)";
     searchResults.appendChild(row);
-    searchMeta.textContent = "No results — add as custom product";
+    searchMeta.textContent = "No results in Open Beauty Facts — you can still add it by name";
     return;
   }
 
@@ -518,7 +344,7 @@ async function searchProducts() {
   customRow.innerHTML = `
     <div>
       <strong>${escapeHtml(rawQuery)}</strong>
-      <div class="result-meta"><span class="search-meta">Add by name (AI will identify it)</span></div>
+      <div class="result-meta"><span class="search-meta">Add by name — Gemini will analyze, no ingredient-level checks</span></div>
     </div>
     <button class="add-btn" aria-label="Add product">+</button>
   `;
@@ -529,84 +355,6 @@ async function searchProducts() {
 
 }
 
-function generateConflicts() {
-  const products = appState.products;
-  const names = products.map((p) => p.name);
-
-  const hasRetinoid = names.some((n) => /tretinoin|retinol/i.test(n));
-  const hasExfoliant = names.some((n) => /bha|aha|exfoliant/i.test(n));
-  const hasSunscreen = names.some((n) => /spf|uv/i.test(n));
-  const hasNiacinamide = names.some((n) => /niacinamide/i.test(n));
-
-  const conflicts = [];
-  const flagged = [];
-  const recs = [];
-
-  if (hasRetinoid && hasExfoliant) {
-    conflicts.push({
-      type: "high",
-      title: "Retinoid + Exfoliating Acid",
-      products: [
-        names.find((n) => /tretinoin|retinol/i.test(n)),
-        names.find((n) => /bha|aha|exfoliant/i.test(n))
-      ],
-      explanation:
-        "Using a retinoid and an exfoliating acid in the same routine can increase irritation, dryness, and barrier damage.",
-      recommendation:
-        "Use them on alternate nights rather than layering them together."
-    });
-    flagged.push("Retinoids");
-    flagged.push("AHAs/BHAs");
-    recs.push("Separate retinoids and acids into different nights.");
-  }
-
-  if (hasRetinoid && !hasSunscreen) {
-    conflicts.push({
-      type: "medium",
-      title: "Retinoid Without Daily SPF",
-      products: [
-        names.find((n) => /tretinoin|retinol/i.test(n)),
-        "No sunscreen detected"
-      ],
-      explanation:
-        "Retinoids increase photosensitivity, and skipping sunscreen can worsen irritation and post-inflammatory dark spots.",
-      recommendation:
-        "Add a daily broad-spectrum SPF to your morning routine."
-    });
-    flagged.push("Sun sensitivity risk");
-    recs.push("Use SPF every morning when using actives.");
-  }
-
-  if (hasNiacinamide) {
-    conflicts.push({
-      type: "low",
-      title: "Niacinamide Supportive Pairing",
-      products: [names.find((n) => /niacinamide/i.test(n)), "Rest of routine"],
-      explanation:
-        "Niacinamide is generally well-tolerated and can help support barrier function.",
-      recommendation:
-        "Keep niacinamide in the routine, especially on recovery days."
-    });
-    flagged.push("Niacinamide");
-    recs.push("Use barrier-supporting ingredients between active nights.");
-  }
-
-  if (!conflicts.length) {
-    conflicts.push({
-      type: "low",
-      title: "No Major Conflict Detected",
-      products: names.slice(0, 2),
-      explanation:
-        "Your current product set does not show a major high-risk combination in this demo analysis.",
-      recommendation:
-        "Still patch test and avoid introducing multiple new actives at once."
-    });
-  }
-
-  appState.conflicts = conflicts;
-  appState.flaggedIngredients = [...new Set(flagged)];
-  appState.recommendations = [...new Set(recs)];
-}
 
 async function verifyAlternativeWithOBF(suggestion) {
   const query = [suggestion.brand, suggestion.product_name].filter(Boolean).join(" ").trim();
@@ -727,6 +475,8 @@ async function renderAnalysisPage() {
   conflictsList.innerHTML = "";
   flaggedWrap.innerHTML = "";
   recsWrap.innerHTML = "";
+  const subtitleEl = $("analysisSubtitle");
+  if (subtitleEl) subtitleEl.textContent = "Analyzing your routine\u2026";
 
   try {
     const response = await fetch(BACKEND_URL, {
@@ -758,6 +508,18 @@ async function renderAnalysisPage() {
 
     const conflicts = result.ingredient_conflicts || [];
     const flagged = result.flagged_ingredients || [];
+
+    const subtitle = $("analysisSubtitle");
+    if (subtitle) {
+      const highCount = conflicts.filter((c) => String(c.severity || "").toLowerCase() === "high").length;
+      if (!conflicts.length) {
+        subtitle.textContent = "No major interactions detected — your routine looks compatible.";
+      } else if (highCount > 0) {
+        subtitle.textContent = `We found ${highCount} high-severity interaction${highCount > 1 ? "s" : ""} in your routine — review the details below.`;
+      } else {
+        subtitle.textContent = `We found ${conflicts.length} interaction${conflicts.length > 1 ? "s" : ""} in your routine and tailored the results to your skin profile.`;
+      }
+    }
 
     // Populate analysis page summary cards dynamically
     const highConflict = conflicts.find((c) => String(c.severity || "").toLowerCase() === "high");
@@ -792,6 +554,15 @@ async function renderAnalysisPage() {
       const card3P  = analysisSummaryCards[2].querySelector("p");
       if (card3H4) card3H4.textContent = result.barrier_assessment ? "Barrier Assessment" : "Overall Summary";
       if (card3P)  card3P.textContent  = result.barrier_assessment || result.overall_summary || "Your routine has been analyzed for compatibility.";
+    }
+
+    // Note any products added by name only (no ingredient list from OBF)
+    const nameOnlyProducts = appState.products.filter((p) => !p.ingredients || !p.ingredients.length);
+    if (nameOnlyProducts.length) {
+      const note = document.createElement("p");
+      note.className = "name-only-note";
+      note.textContent = `Note: ${nameOnlyProducts.map((p) => p.name).join(", ")} ${nameOnlyProducts.length > 1 ? "were" : "was"} analyzed by product name only — no ingredient list found. Chemistry engine checks are skipped for ${nameOnlyProducts.length > 1 ? "these products" : "this product"}.`;
+      conflictsList.appendChild(note);
     }
 
     if (!conflicts.length && !flagged.length) {
@@ -1093,13 +864,38 @@ function renderRoutinePage() {
     });
   }
 
-  const amSteps = routine ? routine.amSteps : weeklyRoutine.Monday.am;
-  const pmSteps = routine ? routine.pmSteps : weeklyRoutine.Monday.pm;
-  const weekly  = routine ? routine.weekly  : weeklyRoutine;
+  const amSteps = routine ? routine.amSteps : [];
+  const pmSteps = routine ? routine.pmSteps : [];
+  const weekly  = routine ? routine.weekly  : {};
 
   renderRoutineSteps("morningRoutine", amSteps);
   renderRoutineSteps("eveningRoutine", pmSteps);
   renderWeeklyRoutine(weekly);
+
+  // Dynamic pro tips based on the user's actual products
+  const tipsList = $("proTipsList");
+  if (tipsList && routine) {
+    const productText = appState.products.map((p) =>
+      [p.name, p.category, ...(p.ingredients || [])].join(" ")
+    ).join(" ").toLowerCase();
+
+    const hasRetinoid = /retinol|retinoid|tretinoin|retinal|adapalene/i.test(productText);
+    const hasSPF = /spf|sunscreen|uv\s*(clear|shield|protect)|sun\s*block/i.test(productText);
+    const hasAcid = /\baha\b|alpha[\s-]?hydroxy|glycolic|lactic|salicylic|\bbha\b/i.test(productText);
+    const hasVitC = /vitamin[\s-]?c|ascorbic/i.test(productText);
+
+    const tips = [
+      "Apply products from thinnest to thickest consistency.",
+      "If irritation occurs, pause actives and focus on hydration for 2–3 days."
+    ];
+    if (hasRetinoid) tips.unshift("Wait 10 minutes after cleansing before applying retinoids for better tolerance.");
+    if (!hasSPF) tips.push("Add a broad-spectrum SPF to your morning routine — actives increase UV sensitivity.");
+    if (hasSPF) tips.push("Sunscreen goes on last in your morning routine, after any serums or moisturizer.");
+    if (hasAcid && hasRetinoid) tips.push("Don't layer acids and retinoids on the same night — alternate instead.");
+    if (hasVitC) tips.push("Vitamin C is most effective in the morning; apply before moisturizer and SPF.");
+
+    tipsList.innerHTML = tips.map((t) => `<li>${escapeHtml(t)}</li>`).join("");
+  }
 }
 
 function renderRoutineSteps(containerId, steps) {
@@ -1107,7 +903,11 @@ function renderRoutineSteps(containerId, steps) {
   wrap.innerHTML = "";
 
   if (!steps || !steps.length) {
-    wrap.innerHTML = `<p style="color:#999;font-size:0.9rem;padding:8px 0">No products assigned to this slot.</p>`;
+    const isAM = containerId === "morningRoutine";
+    wrap.innerHTML = `<p class="routine-empty-note">${isAM
+      ? "No dedicated AM products detected. Consider adding a moisturizer and SPF to your morning routine."
+      : "No products assigned to this slot."
+    }</p>`;
     return;
   }
 
@@ -1129,7 +929,7 @@ function renderRoutineSteps(containerId, steps) {
 function renderWeeklyRoutine(routineData) {
   const wrap = $("weeklyRoutineList");
   wrap.innerHTML = "";
-  const data = routineData || weeklyRoutine;
+  const data = routineData || {};
 
   Object.entries(data).forEach(([day, routine]) => {
     const card = document.createElement("article");
@@ -1186,9 +986,12 @@ function setupTabs() {
 function setupEvents() {
   $("toProductsBtn").addEventListener("click", () => {
     if (!appState.profile.skinType) {
-      alert("Please select your skin type first.");
+      const err = $("profileError");
+      err.textContent = "Please select your skin type before continuing.";
+      err.classList.remove("hidden");
       return;
     }
+    $("profileError").classList.add("hidden");
     appState.profile.goals = [...appState.profile.concerns];
     navigate("#/products");
   });
@@ -1200,9 +1003,12 @@ function setupEvents() {
 
   $("analyzeRoutineBtn").addEventListener("click", () => {
     if (appState.products.length < 2) {
-      alert("Please add at least 2 products.");
+      const err = $("productsError");
+      err.textContent = "Please add at least 2 products to analyze.";
+      err.classList.remove("hidden");
       return;
     }
+    $("productsError").classList.add("hidden");
     navigate("#/analysis");
   });
 
@@ -1235,394 +1041,3 @@ function init() {
 }
 
 init();
-
-// const BACKEND_URL = "http://127.0.0.1:5000/analyze";
-// // Replace with your Cloud Run URL when deployed:
-// // const BACKEND_URL = "https://your-cloud-run-service-url.run.app/analyze";
-
-// const analyzeBtn = document.getElementById("analyzeBtn");
-// const demoBtn = document.getElementById("demoBtn");
-// const mobileMenuBtn = document.getElementById("mobileMenuBtn");
-// const mobileMenu = document.getElementById("mobileMenu");
-
-// const inputMode = document.getElementById("inputMode");
-// const product1 = document.getElementById("product1");
-// const product2 = document.getElementById("product2");
-// const product3 = document.getElementById("product3");
-// const product4 = document.getElementById("product4");
-// const skinType = document.getElementById("skinType");
-// const concern = document.getElementById("concern");
-// const sensitivity = document.getElementById("sensitivity");
-
-// const loadingState = document.getElementById("loadingState");
-// const emptyState = document.getElementById("emptyState");
-// const resultsWrap = document.getElementById("resultsWrap");
-// const errorState = document.getElementById("errorState");
-
-// const overviewCard = document.getElementById("overviewCard");
-// const conflictCards = document.getElementById("conflictCards");
-// const ingredientFlags = document.getElementById("ingredientFlags");
-// const routineCard = document.getElementById("routineCard");
-// const alternativesCard = document.getElementById("alternativesCard");
-
-// mobileMenuBtn?.addEventListener("click", () => {
-//   mobileMenu.classList.toggle("open");
-// });
-
-// function getProducts() {
-//   return [product1.value, product2.value, product3.value, product4.value]
-//     .map((value) => value.trim())
-//     .filter(Boolean);
-// }
-
-// function setLoading(isLoading) {
-//   loadingState.classList.toggle("hidden", !isLoading);
-//   if (isLoading) {
-//     emptyState.classList.add("hidden");
-//     resultsWrap.classList.add("hidden");
-//     errorState.classList.add("hidden");
-//   }
-// }
-
-// function showError(message) {
-//   loadingState.classList.add("hidden");
-//   resultsWrap.classList.add("hidden");
-//   emptyState.classList.add("hidden");
-//   errorState.classList.remove("hidden");
-//   errorState.textContent = message;
-// }
-
-// function resetToEmpty() {
-//   loadingState.classList.add("hidden");
-//   resultsWrap.classList.add("hidden");
-//   errorState.classList.add("hidden");
-//   emptyState.classList.remove("hidden");
-// }
-
-// function severityClass(value) {
-//   const normalized = String(value || "").toLowerCase();
-//   if (normalized === "high") return "high";
-//   if (normalized === "medium") return "medium";
-//   return "low";
-// }
-
-// function renderOverview(data) {
-//   const conflictCount = Array.isArray(data.conflicts) ? data.conflicts.length : 0;
-//   const highCount = (data.conflicts || []).filter(
-//     (item) => String(item.severity).toLowerCase() === "high"
-//   ).length;
-
-//   overviewCard.innerHTML = `
-//     <h4>Routine Overview</h4>
-//     <p>
-//       We analyzed <strong>${data.products?.length || 0}</strong> products and found
-//       <strong>${conflictCount}</strong> interaction issue${conflictCount === 1 ? "" : "s"}.
-//       ${highCount > 0 ? `There ${highCount === 1 ? "is" : "are"} <strong>${highCount}</strong> high-severity concern${highCount === 1 ? "" : "s"}.` : "No high-severity conflicts were detected in this set."}
-//     </p>
-//   `;
-// }
-
-// function renderConflicts(conflicts = []) {
-//   conflictCards.innerHTML = "";
-
-//   if (!conflicts.length) {
-//     conflictCards.innerHTML = `
-//       <div class="conflict-card low">
-//         <div class="conflict-top">
-//           <p class="conflict-products">No major conflicts detected</p>
-//           <span class="conflict-severity">low</span>
-//         </div>
-//         <div class="conflict-body">
-//           <p>Your selected routine appears broadly compatible based on the current analysis.</p>
-//           <p><strong>Recommendation:</strong> Patch test new products and keep sunscreen/barrier support in the routine.</p>
-//         </div>
-//       </div>
-//     `;
-//     return;
-//   }
-
-//   conflicts.forEach((item) => {
-//     const level = severityClass(item.severity);
-//     const card = document.createElement("article");
-//     card.className = `conflict-card ${level}`;
-//     card.innerHTML = `
-//       <div class="conflict-top">
-//         <p class="conflict-products">${escapeHtml(item.product_a)} + ${escapeHtml(item.product_b)}</p>
-//         <span class="conflict-severity">${escapeHtml(level)}</span>
-//       </div>
-//       <div class="conflict-body">
-//         <p><strong>Conflict:</strong> ${escapeHtml(item.conflict)}</p>
-//         <p><strong>Recommendation:</strong> ${escapeHtml(item.recommendation)}</p>
-//       </div>
-//     `;
-//     conflictCards.appendChild(card);
-//   });
-// }
-
-// function renderIngredientFlags(flags = []) {
-//   ingredientFlags.innerHTML = "";
-
-//   if (!flags.length) {
-//     ingredientFlags.innerHTML = `<span class="tag">No flagged ingredients returned</span>`;
-//     return;
-//   }
-
-//   flags.forEach((flag) => {
-//     const tag = document.createElement("span");
-//     tag.className = "tag";
-//     tag.textContent = flag;
-//     ingredientFlags.appendChild(tag);
-//   });
-// }
-
-// function renderRoutine(routine = {}) {
-//   const am = Array.isArray(routine.am) ? routine.am : [];
-//   const pm = Array.isArray(routine.pm) ? routine.pm : [];
-//   const notes = Array.isArray(routine.notes) ? routine.notes : [];
-
-//   routineCard.innerHTML = `
-//     <div class="routine-split">
-//       <div class="routine-block">
-//         <h5>AM Routine</h5>
-//         <ul>
-//           ${am.length ? am.map((item) => `<li>${escapeHtml(item)}</li>`).join("") : "<li>No AM suggestions returned</li>"}
-//         </ul>
-//       </div>
-//       <div class="routine-block">
-//         <h5>PM Routine</h5>
-//         <ul>
-//           ${pm.length ? pm.map((item) => `<li>${escapeHtml(item)}</li>`).join("") : "<li>No PM suggestions returned</li>"}
-//         </ul>
-//       </div>
-//     </div>
-//     <div class="notes-wrap">
-//       <h5>Routine Notes</h5>
-//       <ul class="notes-list">
-//         ${notes.length ? notes.map((item) => `<li>${escapeHtml(item)}</li>`).join("") : "<li>No additional notes returned</li>"}
-//       </ul>
-//     </div>
-//   `;
-// }
-
-// function renderAlternatives(alternatives = []) {
-//   alternativesCard.innerHTML = `
-//     <ul class="alt-list">
-//       ${
-//         alternatives.length
-//           ? alternatives.map((item) => `<li>${escapeHtml(item)}</li>`).join("")
-//           : "<li>No alternative recommendations returned.</li>"
-//       }
-//     </ul>
-//   `;
-// }
-
-// function renderResults(data) {
-//   emptyState.classList.add("hidden");
-//   loadingState.classList.add("hidden");
-//   errorState.classList.add("hidden");
-//   resultsWrap.classList.remove("hidden");
-
-//   renderOverview(data);
-//   renderConflicts(data.conflicts || []);
-//   renderIngredientFlags(data.flagged_ingredients || []);
-//   renderRoutine(data.routine || {});
-//   renderAlternatives(data.alternatives || []);
-// }
-
-// function escapeHtml(value) {
-//   return String(value)
-//     .replaceAll("&", "&amp;")
-//     .replaceAll("<", "&lt;")
-//     .replaceAll(">", "&gt;")
-//     .replaceAll('"', "&quot;")
-//     .replaceAll("'", "&#039;");
-// }
-
-// async function analyzeProducts() {
-//   const products = getProducts();
-
-//   if (products.length < 2) {
-//     showError("Please enter at least 2 products or ingredient lists.");
-//     return;
-//   }
-
-//   setLoading(true);
-
-//   const payload = {
-//     products,
-//     profile: {
-//       skin_type: skinType.value,
-//       concern: concern.value,
-//       sensitivity: sensitivity.value,
-//       input_mode: inputMode.value
-//     }
-//   };
-
-//   try {
-//     const response = await fetch(BACKEND_URL, {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json"
-//       },
-//       body: JSON.stringify(payload)
-//     });
-
-//     if (!response.ok) {
-//       throw new Error(`Request failed with status ${response.status}`);
-//     }
-
-//     const data = await response.json();
-
-//     // Supports both:
-//     // { result: "[...json string...]" }
-//     // and a cleaner direct JSON object
-//     if (typeof data.result === "string") {
-//       const parsedResult = JSON.parse(data.result);
-//       const normalized = normalizeLegacyResult(parsedResult, products);
-//       renderResults(normalized);
-//     } else {
-//       const normalized = normalizeDirectResult(data, products);
-//       renderResults(normalized);
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     showError("Could not analyze products right now. Load the demo or check your backend connection.");
-//   }
-// }
-
-// function normalizeLegacyResult(parsedResult, products) {
-//   const conflicts = Array.isArray(parsedResult) ? parsedResult : [];
-//   return {
-//     products,
-//     conflicts,
-//     flagged_ingredients: [
-//       "Retinol — irritation risk when overused",
-//       "AHA — exfoliation risk",
-//       "Fragrance — caution for sensitive skin"
-//     ],
-//     routine: {
-//       am: ["Gentle cleanser", "Vitamin C or hydrating serum", "Moisturizer", "Sunscreen"],
-//       pm: ["Cleanser", "Retinol on alternate nights", "Barrier-support moisturizer"],
-//       notes: [
-//         "Do not layer strong acids and retinol in the same routine.",
-//         "Prioritize barrier support if sensitivity is present."
-//       ]
-//     },
-//     alternatives: [
-//       "Swap strong exfoliating toner for a gentler lactic acid or PHA product.",
-//       "Use hydrating serum on non-retinol nights.",
-//       "Choose fragrance-free moisturizers if sensitivity is a concern."
-//     ]
-//   };
-// }
-
-// function normalizeDirectResult(data, products) {
-//   return {
-//     products,
-//     conflicts: Array.isArray(data.conflicts) ? data.conflicts : [],
-//     flagged_ingredients: Array.isArray(data.flagged_ingredients) ? data.flagged_ingredients : [],
-//     routine: data.routine || { am: [], pm: [], notes: [] },
-//     alternatives: Array.isArray(data.alternatives) ? data.alternatives : []
-//   };
-// }
-
-// function loadDemo() {
-//   const demoData = {
-//     products: [
-//       "The Ordinary Retinol 0.5% in Squalane",
-//       "Paula's Choice Skin Perfecting 8% AHA Gel",
-//       "CeraVe PM Facial Moisturizing Lotion",
-//       "Vitamin C Brightening Serum"
-//     ],
-//     conflicts: [
-//       {
-//         product_a: "The Ordinary Retinol 0.5% in Squalane",
-//         product_b: "Paula's Choice Skin Perfecting 8% AHA Gel",
-//         severity: "high",
-//         conflict:
-//           "Retinol and AHA used in the same routine can increase irritation, dryness, and barrier damage.",
-//         recommendation:
-//           "Use them on alternate nights rather than layering together."
-//       },
-//       {
-//         product_a: "Vitamin C Brightening Serum",
-//         product_b: "Paula's Choice Skin Perfecting 8% AHA Gel",
-//         severity: "medium",
-//         conflict:
-//           "Using multiple strong actives in one day may overwhelm sensitive or barrier-impaired skin.",
-//         recommendation:
-//           "Use vitamin C in the morning and keep exfoliating acids limited to select nights."
-//       },
-//       {
-//         product_a: "The Ordinary Retinol 0.5% in Squalane",
-//         product_b: "Vitamin C Brightening Serum",
-//         severity: "low",
-//         conflict:
-//           "This pairing is often workable, but some users may experience irritation if both are strong formulations.",
-//         recommendation:
-//           "Separate into AM/PM routines if irritation appears."
-//       }
-//     ],
-//     flagged_ingredients: [
-//       "Retinol — high irritation potential with acids",
-//       "AHA — exfoliation/overuse risk",
-//       "Fragrance — caution for sensitive skin",
-//       "Essential oils — possible sensitizer",
-//       "Denatured alcohol — may be drying for compromised barriers"
-//     ],
-//     routine: {
-//       am: [
-//         "Gentle cleanser",
-//         "Vitamin C Brightening Serum",
-//         "CeraVe PM Facial Moisturizing Lotion",
-//         "Broad-spectrum sunscreen"
-//       ],
-//       pm: [
-//         "Gentle cleanser",
-//         "Retinol 2–3 nights weekly",
-//         "Moisturizer",
-//         "AHA on a separate night only"
-//       ],
-//       notes: [
-//         "Do not use retinol and AHA in the same evening routine.",
-//         "If redness or stinging occurs, reduce active frequency.",
-//         "Keep barrier-supporting moisturizer consistent."
-//       ]
-//     },
-//     alternatives: [
-//       "Replace strong AHA with PHA or mandelic acid if sensitivity is high.",
-//       "Choose fragrance-free moisturizer for barrier repair.",
-//       "Use a hydrating serum on off-nights instead of stacking more actives."
-//     ]
-//   };
-
-//   product1.value = demoData.products[0];
-//   product2.value = demoData.products[1];
-//   product3.value = demoData.products[2];
-//   product4.value = demoData.products[3];
-//   skinType.value = "sensitive";
-//   concern.value = "texture";
-//   sensitivity.value = "fragrance-sensitive";
-
-//   renderResults(demoData);
-// }
-
-// analyzeBtn.addEventListener("click", analyzeProducts);
-// demoBtn.addEventListener("click", loadDemo);
-
-// // keep placeholder text in sync with mode
-// inputMode.addEventListener("change", () => {
-//   if (inputMode.value === "ingredients") {
-//     product1.placeholder = "Paste ingredient list (INCI) for product 1";
-//     product2.placeholder = "Paste ingredient list (INCI) for product 2";
-//     product3.placeholder = "Optional ingredient list";
-//     product4.placeholder = "Optional ingredient list";
-//   } else {
-//     product1.placeholder = "e.g. The Ordinary Retinol 0.5% in Squalane";
-//     product2.placeholder = "e.g. Paula's Choice Skin Perfecting 8% AHA";
-//     product3.placeholder = "Optional";
-//     product4.placeholder = "Optional";
-//   }
-// });
-
-// resetToEmpty();

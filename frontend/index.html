@@ -193,6 +193,7 @@
                 <div class="checkbox-grid" id="sensitivitiesGrid"></div>
               </article>
 
+              <p id="profileError" class="inline-error hidden"></p>
               <button class="btn btn-primary btn-lg btn-full" id="toProductsBtn">
                 Continue to Products
                 <span class="btn-arrow">→</span>
@@ -248,6 +249,7 @@
                 <p>Search and add 2–4 products from your routine to get started.</p>
               </div>
 
+              <p id="productsError" class="inline-error hidden"></p>
               <button class="btn btn-primary btn-lg btn-full" id="analyzeRoutineBtn">
                 Analyze My Routine
                 <span class="btn-arrow">→</span>
@@ -264,10 +266,8 @@
             <div class="container medium analysis-main-col">
               <div class="section-head centered">
                 <h1>Your Ingredient Analysis</h1>
-                <p>
-                  We found several interactions in your routine and tailored the results
-                  to your skin profile.
-                </p>
+                <p id="analysisSubtitle">Analyzing your routine&hellip;</p>
+                <p class="analysis-powered-by">Analyzed by our chemistry engine &amp; Gemini 2.5 Flash</p>
               </div>
 
               <div class="analysis-top-grid">
@@ -440,7 +440,7 @@
               <div class="panel-head">
                 <h3>Pro Application Tips</h3>
               </div>
-              <ul class="bullet-list">
+              <ul class="bullet-list" id="proTipsList">
                 <li>Wait 10 minutes after cleansing before applying retinoids for better tolerance.</li>
                 <li>Apply products from thinnest to thickest consistency.</li>
                 <li>Always use sunscreen as the final step in your morning routine.</li>
