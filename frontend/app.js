@@ -715,10 +715,40 @@ async function renderAnalysisPage() {
     const conflicts = result.ingredient_conflicts || [];
     const flagged = result.flagged_ingredients || [];
 
+    // Populate analysis page summary cards dynamically
+    const highConflict = conflicts.find((c) => String(c.severity || "").toLowerCase() === "high");
+    const medConflict  = conflicts.find((c) => {
+      const s = String(c.severity || "").toLowerCase();
+      return s === "moderate" || s === "medium";
+    });
+
     highPriorityText.textContent =
+      highConflict?.explanation ||
       conflicts[0]?.explanation ||
       result.overall_summary ||
-      "Analysis complete.";
+      "No major high-risk conflicts detected.";
+
+    const analysisSummaryCards = document.querySelectorAll("#page-analysis .analysis-top-grid .summary-card");
+    if (analysisSummaryCards.length >= 2) {
+      // Card 2: medium conflict or routine tip
+      const card2H4 = analysisSummaryCards[1].querySelector("h4");
+      const card2P  = analysisSummaryCards[1].querySelector("p");
+      if (medConflict) {
+        if (card2H4) card2H4.textContent = "Medium-Risk Combination";
+        if (card2P)  card2P.textContent  = medConflict.explanation || medConflict.time_separation_advice || "";
+      } else {
+        const synergy = (result.ingredient_synergies || [])[0];
+        if (card2H4) card2H4.textContent = synergy ? "Ingredient Synergy" : "Routine Tip";
+        if (card2P)  card2P.textContent  = synergy?.explanation || (result.routine_recommendations || [])[0] || "Morning SPF helps protect actives from UV degradation.";
+      }
+    }
+    if (analysisSummaryCards.length >= 3) {
+      // Card 3: barrier or overall summary
+      const card3H4 = analysisSummaryCards[2].querySelector("h4");
+      const card3P  = analysisSummaryCards[2].querySelector("p");
+      if (card3H4) card3H4.textContent = result.barrier_assessment ? "Barrier Assessment" : "Overall Summary";
+      if (card3P)  card3P.textContent  = result.barrier_assessment || result.overall_summary || "Your routine has been analyzed for compatibility.";
+    }
 
     if (!conflicts.length && !flagged.length) {
       const card = document.createElement("article");
@@ -819,15 +849,218 @@ async function renderAnalysisPage() {
   }
 }
 
+function buildRoutine() {
+  const products = appState.products || [];
+  const result = appState.geminiResult || {};
+  if (!products.length) return null;
+
+  const conflicts = result.ingredient_conflicts || [];
+
+  function classifyProduct(p) {
+    const text = [p.name, p.category, ...(p.ingredients || [])].join(" ").toLowerCase();
+    if (/spf|sunscreen|uv\s*(clear|shield|protect)|sun\s*block/i.test(text))
+      return { slot: "am", activeType: null };
+    if (/retinol|retinoid|tretinoin|retinal|adapalene|retin[\s-]?a/i.test(text))
+      return { slot: "pm-active", activeType: "retinoid" };
+    if (/\baha\b|alpha[\s-]?hydroxy|glycolic|lactic|mandelic|\bbha\b|beta[\s-]?hydroxy|salicylic|exfoliant|peeling/i.test(text))
+      return { slot: "pm-active", activeType: "acid" };
+    if (/vitamin[\s-]?c|ascorbic|l-ascorbic/i.test(text))
+      return { slot: "am-active", activeType: "vitaminc" };
+    return { slot: "both", activeType: null };
+  }
+
+  const classified = products.map((p) => ({ ...p, ...classifyProduct(p) }));
+  const amOnly    = classified.filter((p) => p.slot === "am");
+  const amActives = classified.filter((p) => p.slot === "am-active");
+  const pmActives = classified.filter((p) => p.slot === "pm-active");
+  const both      = classified.filter((p) => p.slot === "both");
+
+  // Detect whether any high-severity conflict sits across two of our PM actives
+  const hasHighActiveSplit =
+    pmActives.length >= 2 &&
+    conflicts.some((c) => {
+      const raw = String(c.severity || "").toLowerCase();
+      if (raw !== "high") return false;
+      const cIngs = (c.ingredients || []).map((i) => i.toLowerCase());
+      const matchA = pmActives[0];
+      const matchB = pmActives[1];
+      const textA = [matchA.name, ...(matchA.ingredients || [])].join(" ").toLowerCase();
+      const textB = [matchB.name, ...(matchB.ingredients || [])].join(" ").toLowerCase();
+      return cIngs.some((ci) => textA.includes(ci)) && cIngs.some((ci) => textB.includes(ci));
+    });
+
+  // Split conflicting PM actives across nights
+  let activeGroupA = []; // Mon / Wed / Fri
+  let activeGroupB = []; // Tue / Thu
+  let activeEveryNight = [];
+
+  if (hasHighActiveSplit) {
+    const retinoids = pmActives.filter((p) => p.activeType === "retinoid");
+    const acids     = pmActives.filter((p) => p.activeType === "acid");
+    if (retinoids.length && acids.length) {
+      activeGroupA = retinoids;
+      activeGroupB = acids;
+    } else {
+      activeGroupA = [pmActives[0]];
+      activeGroupB = pmActives.slice(1);
+    }
+  } else {
+    activeEveryNight = pmActives;
+  }
+
+  // Base steps that run every AM or every PM
+  const amBase = [...both, ...amOnly, ...amActives];
+  const pmBase = [...both];
+
+  // Daily summary view
+  const amSteps = amBase.map((p) => ({ product: p.name, category: p.category }));
+  const pmSteps = [
+    ...pmBase.map((p) => ({ product: p.name, category: p.category })),
+    ...(hasHighActiveSplit
+      ? [
+          ...activeGroupA.map((p) => ({
+            product: p.name,
+            category: p.category,
+            note: "Mon / Wed / Fri"
+          })),
+          ...activeGroupB.map((p) => ({
+            product: p.name,
+            category: p.category,
+            note: "Tue / Thu"
+          }))
+        ]
+      : activeEveryNight.map((p) => ({ product: p.name, category: p.category })))
+  ];
+
+  // Weekly schedule
+  const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  const PATTERN_A = ["Monday", "Wednesday", "Friday"];
+  const PATTERN_B = ["Tuesday", "Thursday"];
+
+  const weekly = {};
+  DAYS.forEach((day) => {
+    const am = amBase.map((p) => ({ product: p.name, category: p.category }));
+    let pm    = pmBase.map((p) => ({ product: p.name, category: p.category }));
+
+    if (hasHighActiveSplit) {
+      if (PATTERN_A.includes(day) && activeGroupA.length) {
+        const label = activeGroupA[0].activeType === "retinoid" ? "Retinoid night" : "Active A night";
+        pm = [
+          ...pm,
+          ...activeGroupA.map((p, i) => ({
+            product: p.name,
+            category: p.category,
+            note: i === 0 ? label : undefined
+          }))
+        ];
+      } else if (PATTERN_B.includes(day) && activeGroupB.length) {
+        const label = activeGroupB[0].activeType === "acid" ? "Acid night" : "Active B night";
+        pm = [
+          ...pm,
+          ...activeGroupB.map((p, i) => ({
+            product: p.name,
+            category: p.category,
+            note: i === 0 ? label : undefined
+          }))
+        ];
+      } else {
+        // Recovery night — just base steps, add note to last item if any
+        if (pm.length) pm = [...pm.slice(0, -1), { ...pm[pm.length - 1], note: "Recovery night" }];
+      }
+    } else {
+      pm = [...pm, ...activeEveryNight.map((p) => ({ product: p.name, category: p.category }))];
+    }
+
+    weekly[day] = { am, pm };
+  });
+
+  // Summary cards for the routine page
+  const hasSPF = amOnly.some((p) => /spf|sunscreen/i.test(p.name));
+
+  let card1, card2, card3;
+
+  if (hasHighActiveSplit) {
+    const aName = activeGroupA.map((p) => p.name.split(" ").slice(0, 3).join(" ")).join(", ");
+    const bName = activeGroupB.map((p) => p.name.split(" ").slice(0, 3).join(" ")).join(", ");
+    card1 = {
+      tone: "low-tone",
+      icon: "✓",
+      title: "Active Separation",
+      text: `${aName} and ${bName} are scheduled on alternate nights to prevent irritation.`
+    };
+  } else if (pmActives.length) {
+    card1 = {
+      tone: "low-tone",
+      icon: "✓",
+      title: "Compatible Actives",
+      text: "Your actives are compatible and can be used together each evening."
+    };
+  } else {
+    card1 = {
+      tone: "low-tone",
+      icon: "✓",
+      title: "Gentle Routine",
+      text: "No conflicting actives detected. Focus on cleansing, moisturizing, and SPF."
+    };
+  }
+
+  card2 = {
+    tone: "medium-tone",
+    icon: "☼",
+    title: hasSPF ? "Daily SPF Included" : "Add Daily SPF",
+    text: hasSPF
+      ? "Sunscreen is in your morning routine — protecting your skin and your actives from UV damage."
+      : "Consider adding a broad-spectrum SPF to your morning routine, especially when using actives."
+  };
+
+  card3 = {
+    tone: "accent-tone",
+    icon: "✨",
+    title: "Recovery Balance",
+    text: result.barrier_assessment ||
+      "Hydration-focused recovery nights between active sessions help maintain your skin barrier."
+  };
+
+  return { amSteps, pmSteps, weekly, summaryCards: [card1, card2, card3] };
+}
+
 function renderRoutinePage() {
-  renderRoutineSteps("morningRoutine", weeklyRoutine.Monday.am, "morning");
-  renderRoutineSteps("eveningRoutine", weeklyRoutine.Monday.pm, "evening");
-  renderWeeklyRoutine();
+  const routine = buildRoutine();
+
+  // Summary cards
+  const summaryCards = document.querySelectorAll("#page-routine .analysis-top-grid .summary-card");
+  const cardData = routine ? routine.summaryCards : null;
+  if (cardData) {
+    summaryCards.forEach((card, i) => {
+      const data = cardData[i];
+      if (!data) return;
+      card.className = `summary-card ${data.tone}`;
+      const icon = card.querySelector(".summary-icon");
+      const h4   = card.querySelector("h4");
+      const p    = card.querySelector("p");
+      if (icon) icon.textContent = data.icon;
+      if (h4)   h4.textContent   = data.title;
+      if (p)    p.textContent    = data.text;
+    });
+  }
+
+  const amSteps = routine ? routine.amSteps : weeklyRoutine.Monday.am;
+  const pmSteps = routine ? routine.pmSteps : weeklyRoutine.Monday.pm;
+  const weekly  = routine ? routine.weekly  : weeklyRoutine;
+
+  renderRoutineSteps("morningRoutine", amSteps);
+  renderRoutineSteps("eveningRoutine", pmSteps);
+  renderWeeklyRoutine(weekly);
 }
 
 function renderRoutineSteps(containerId, steps) {
   const wrap = $(containerId);
   wrap.innerHTML = "";
+
+  if (!steps || !steps.length) {
+    wrap.innerHTML = `<p style="color:#999;font-size:0.9rem;padding:8px 0">No products assigned to this slot.</p>`;
+    return;
+  }
 
   steps.forEach((step, index) => {
     const row = document.createElement("div");
@@ -844,11 +1077,12 @@ function renderRoutineSteps(containerId, steps) {
   });
 }
 
-function renderWeeklyRoutine() {
+function renderWeeklyRoutine(routineData) {
   const wrap = $("weeklyRoutineList");
   wrap.innerHTML = "";
+  const data = routineData || weeklyRoutine;
 
-  Object.entries(weeklyRoutine).forEach(([day, routine]) => {
+  Object.entries(data).forEach(([day, routine]) => {
     const card = document.createElement("article");
     card.className = "week-day-card";
     card.innerHTML = `
