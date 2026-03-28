@@ -912,6 +912,26 @@ input {
   margin: 0 0 8px;
 }
 
+.engine-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 10px;
+  padding: 3px 9px;
+  border-radius: 99px;
+  background: #f0f4ff;
+  border: 1px solid #c8d5f5;
+  color: #4a5fa8;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.engine-source {
+  color: #6b7db8;
+  font-style: italic;
+}
+
 /* ── Analysis page two-column layout ── */
 .analysis-page-wrapper {
   display: flex;

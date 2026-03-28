@@ -205,6 +205,43 @@ const weeklyRoutine = {
 
 const BACKEND_URL = "https://skincare-iq-api-709197932075.us-central1.run.app/analyze";
 
+// Mirrors the canonical synonym keys from conflict_engine.py (key terms only)
+const CANONICAL_SYNONYMS = {
+  retinol:         ["retinol", "retinyl", "tretinoin", "adapalene", "retinoate", "retinal"],
+  aha:             ["glycolic", "lactic acid", "mandelic", "alpha hydroxy"],
+  bha:             ["salicylic", "beta hydroxy", "betaine salicylate", "willow bark"],
+  bpo:             ["benzoyl peroxide"],
+  vitc:            ["ascorbic acid", "ascorbyl", "vitamin c"],
+  niacinamide:     ["niacinamide", "nicotinamide"],
+  copper_peptides: ["copper tripeptide", "copper peptide", "ghk-cu", "cu-ghk"],
+  hydroquinone:    ["hydroquinone"],
+  kojic_acid:      ["kojic acid"],
+  peptides:        ["palmitoyl tripeptide", "palmitoyl tetrapeptide", "matrixyl", "argireline"],
+  pha:             ["gluconolactone", "lactobionic"],
+};
+
+function ingredientToCanonicalKey(text) {
+  const lower = text.toLowerCase();
+  for (const [key, synonyms] of Object.entries(CANONICAL_SYNONYMS)) {
+    if (synonyms.some((syn) => lower.includes(syn))) return key;
+  }
+  return null;
+}
+
+// Returns {source, mechanism} if conflict was pre-detected by the chemistry engine, else null
+function findEngineDetection(geminiConflict, preConflicts) {
+  if (!preConflicts || !preConflicts.length) return null;
+  const ings = geminiConflict.ingredients || [];
+  const keys = ings.map(ingredientToCanonicalKey).filter(Boolean);
+  for (const pre of preConflicts) {
+    const pair = pre.canonical_pair || [];
+    if (pair.length === 2 && keys.includes(pair[0]) && keys.includes(pair[1])) {
+      return { source: pre.source || null, mechanism: pre.mechanism || null };
+    }
+  }
+  return null;
+}
+
 const appState = {
   profile: {
     skinType: "",
@@ -213,7 +250,8 @@ const appState = {
     goals: []
   },
   products: [],
-  geminiResult: null
+  geminiResult: null,
+  preConflicts: []
 };
 
 function $(id) {
@@ -714,6 +752,7 @@ async function renderAnalysisPage() {
     const data = await response.json();
     const result = typeof data.result === "string" ? JSON.parse(data.result) : data.result;
     appState.geminiResult = result;
+    appState.preConflicts = data.pre_conflicts || [];
 
     $("analysisLoading").classList.add("hidden");
 
@@ -777,6 +816,10 @@ async function renderAnalysisPage() {
     conflicts.forEach((conflict) => {
       const raw = String(conflict.severity || "medium").toLowerCase();
       const level = raw === "moderate" ? "medium" : raw === "mild" ? "low" : raw;
+      const engineMatch = findEngineDetection(conflict, appState.preConflicts);
+      const engineBadge = engineMatch
+        ? `<div class="engine-badge">⚗ Pre-detected by Chemistry Engine${engineMatch.source ? ` · <span class="engine-source">${escapeHtml(engineMatch.source)}</span>` : ""}</div>`
+        : "";
       const card = document.createElement("article");
       card.className = `conflict-card ${level}`;
       card.innerHTML = `
@@ -790,6 +833,7 @@ async function renderAnalysisPage() {
         <div class="conflict-body">
           <p><strong>Why it matters:</strong> ${escapeHtml(conflict.explanation || "")}</p>
           <p><strong>Recommendation:</strong> ${escapeHtml(conflict.recommendation || "")}</p>
+          ${engineBadge}
         </div>
       `;
       conflictsList.appendChild(card);

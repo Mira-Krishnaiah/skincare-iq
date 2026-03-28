@@ -131,7 +131,7 @@ def analyze():
             ),
             422,
         )
-    return jsonify({"result": text})
+    return jsonify({"result": text, "pre_conflicts": pre_conflicts})
 
 
 if __name__ == "__main__":
