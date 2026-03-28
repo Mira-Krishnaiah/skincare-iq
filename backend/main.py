@@ -9,7 +9,7 @@ app = Flask(__name__)
 CORS(app)
 
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-model = genai.GenerativeModel("gemini-1.5-flash-8b")
+model = genai.GenerativeModel("gemini-2.0-flash")
 
 MAX_PRODUCTS = 4
 
